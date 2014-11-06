@@ -84,7 +84,7 @@
 #define S3C2410_PA_NAND	   (0x4E000000)//nandflash控制寄存器的基地址
 
 /* IIC hardware controller */
-#define S3C2410_PA_IIC	   (0x54000000)
+#define S3C2410_PA_IIC	   (0x54000000)//i2c控制寄存器的物理起始地址
 
 /* IIS controller */
 #define S3C2410_PA_IIS	   (0x55000000)

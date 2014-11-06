@@ -130,7 +130,7 @@ struct s3c24xx_i2c {
 
 static struct platform_device_id s3c24xx_driver_ids[] = {
 	{
-		.name		= "s3c2410-i2c",
+		.name		= "s3c2410-i2c",//此.name字段必须与i2c平台设备中的.name字段匹配
 		.driver_data	= 0,
 	}, {
 		.name		= "s3c2440-i2c",
@@ -1081,8 +1081,8 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
 
 	/* map the registers */
 
-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	i2c->regs = devm_ioremap_resource(&pdev->dev, res);
+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);//从平台设备中获取i2c控制寄存器物理起始地址
+	i2c->regs = devm_ioremap_resource(&pdev->dev, res);//物理地址重映射(ioremap)
 
 	if (IS_ERR(i2c->regs))
 		return PTR_ERR(i2c->regs);
@@ -1229,7 +1229,7 @@ static const struct dev_pm_ops s3c24xx_i2c_dev_pm_ops = {
 /* device driver for platform bus bits */
 
 static struct platform_driver s3c24xx_i2c_driver = {
-	.probe		= s3c24xx_i2c_probe,
+	.probe		= s3c24xx_i2c_probe,//.probe成员函数
 	.remove		= s3c24xx_i2c_remove,
 	.id_table	= s3c24xx_driver_ids,
 	.driver		= {
@@ -1242,7 +1242,7 @@ static struct platform_driver s3c24xx_i2c_driver = {
 
 static int __init i2c_adap_s3c_init(void)
 {
-	return platform_driver_register(&s3c24xx_i2c_driver);
+	return platform_driver_register(&s3c24xx_i2c_driver);//将i2c的平台驱动注册到内核，平台总线开始查找所有已注册的平台设备若找到.name字段一致的则调用.probe成员函数s3c24xx_i2c_probe
 }
 subsys_initcall(i2c_adap_s3c_init);
 
