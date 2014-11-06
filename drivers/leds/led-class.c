@@ -249,7 +249,7 @@ EXPORT_SYMBOL_GPL(led_classdev_unregister);
 
 static int __init leds_init(void)
 {
-	leds_class = class_create(THIS_MODULE, "leds");
+	leds_class = class_create(THIS_MODULE, "leds");//在/sys/class目录下创建一个class
 	if (IS_ERR(leds_class))
 		return PTR_ERR(leds_class);
 	leds_class->suspend = led_suspend;

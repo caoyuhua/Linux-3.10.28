@@ -88,7 +88,7 @@ enum s3c_gpio_number {
 
 /* S3C2410 GPIO number definitions. */
 
-#define S3C2410_GPA(_nr)	(S3C2410_GPIO_A_START + (_nr))
+#define S3C2410_GPA(_nr)	(S3C2410_GPIO_A_START + (_nr))//定义各GPIO口编号
 #define S3C2410_GPB(_nr)	(S3C2410_GPIO_B_START + (_nr))
 #define S3C2410_GPC(_nr)	(S3C2410_GPIO_C_START + (_nr))
 #define S3C2410_GPD(_nr)	(S3C2410_GPIO_D_START + (_nr))

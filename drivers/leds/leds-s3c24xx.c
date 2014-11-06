@@ -54,7 +54,7 @@ static void s3c24xx_led_set(struct led_classdev *led_cdev,
 
 	if (pd->flags & S3C24XX_LEDF_TRISTATE) {
 		if (value)
-			gpio_direction_output(pd->gpio, state);
+			gpio_direction_output(pd->gpio, state);//设置gpio口的输入输出模式，定义在drivers/gpio/gpiolib.c中
 		else
 			gpio_direction_input(pd->gpio);
 	}
@@ -115,7 +115,7 @@ static int s3c24xx_led_probe(struct platform_device *dev)
 }
 
 static struct platform_driver s3c24xx_led_driver = {
-	.probe		= s3c24xx_led_probe,
+	.probe		= s3c24xx_led_probe,//.probe成员函数
 	.remove		= s3c24xx_led_remove,
 	.driver		= {
 		.name		= "s3c24xx_led",
@@ -123,7 +123,7 @@ static struct platform_driver s3c24xx_led_driver = {
 	},
 };
 
-module_platform_driver(s3c24xx_led_driver);
+module_platform_driver(s3c24xx_led_driver);//当平台总线匹配到s3c24xx_led_driver的.name字段匹配的平台设备时，便会调用.probe成员函数。
 
 MODULE_AUTHOR("Ben Dooks <ben@simtec.co.uk>");
 MODULE_DESCRIPTION("S3C24XX LED driver");

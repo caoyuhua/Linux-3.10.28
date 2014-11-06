@@ -3006,7 +3006,7 @@ err_ioremap1:
 }
 
 /* TODO: cleanup soc_is_* */
-static __init int samsung_gpiolib_init(void)
+static __init int samsung_gpiolib_init(void)//arch/arm/match-s3c24xx/inclde/mach/gpio.h只定义了各gpio口编号，此处才真正将各组gpio控制寄存器的基地址注册到内核。
 {
 	struct samsung_gpio_chip *chip;
 	int i, nr_chips;
@@ -3041,7 +3041,7 @@ static __init int samsung_gpiolib_init(void)
 
 	if (soc_is_s3c24xx()) {
 		s3c24xx_gpiolib_add_chips(s3c24xx_gpios,
-				ARRAY_SIZE(s3c24xx_gpios), S3C24XX_VA_GPIO);
+				ARRAY_SIZE(s3c24xx_gpios), S3C24XX_VA_GPIO);//S3C24XX_VA_GPIO为gpio控制寄存器基地址，定义在arch/arm/plat-samsung/include/plat/map-s3c.h
 	} else if (soc_is_s3c64xx()) {
 		samsung_gpiolib_add_2bit_chips(s3c64xx_gpios_2bit,
 				ARRAY_SIZE(s3c64xx_gpios_2bit),

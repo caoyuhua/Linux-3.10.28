@@ -42,7 +42,7 @@
  * by the base system.
 */
 
-#define S3C2410_PA_GPIO		(0x56000000)
+#define S3C2410_PA_GPIO		(0x56000000)//定义GPIOA组控制寄存器的基地址
 #define S3C24XX_PA_GPIO		S3C2410_PA_GPIO
 
 #define S3C24XX_VA_GPIO		((S3C24XX_PA_GPIO - S3C24XX_PA_UART) + S3C24XX_VA_UART)

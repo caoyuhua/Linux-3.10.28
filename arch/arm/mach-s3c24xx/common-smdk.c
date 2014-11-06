@@ -75,11 +75,11 @@ static struct s3c24xx_led_platdata smdk_pdata_led7 = {
 	.name		= "led7",
 };
 
-static struct platform_device smdk_led4 = {
+static struct platform_device smdk_led4 = {//led平台设备，此结构体的.name字段必须与drivers/leds/leds_s3c24xx.c中平台驱动的.name字段匹配(有的驱动是.id_table中的.name字段）。
 	.name		= "s3c24xx_led",
 	.id		= 0,
 	.dev		= {
-		.platform_data = &smdk_pdata_led4,
+		.platform_data = &smdk_pdata_led4,//定义该led所用gpio口编号及默认triger，由配套的drivers/leds/leds_s3c24xx.c负责解析.platform_data。
 	},
 };
 
@@ -204,7 +204,7 @@ void __init smdk_machine_init(void)
 
 	s3c_nand_set_platdata(&smdk_nand_info);
 
-	platform_add_devices(smdk_devs, ARRAY_SIZE(smdk_devs));
+	platform_add_devices(smdk_devs, ARRAY_SIZE(smdk_devs));//添加平台设备
 
 	s3c_pm_init();
 }
