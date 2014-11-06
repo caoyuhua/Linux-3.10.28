@@ -113,13 +113,16 @@ void set_irq_flags(unsigned int irq, unsigned int iflags)
 }
 EXPORT_SYMBOL_GPL(set_irq_flags);
 
-void __init init_IRQ(void)
+void __init init_IRQ(void)//called by start_kernel()
 {
 	if (IS_ENABLED(CONFIG_OF) && !machine_desc->init_irq)
 		irqchip_init();
 	else
-		machine_desc->init_irq();
+		machine_desc->init_irq();//s3c24xx_init_irq（），在arch/arm/plat_s3c24xx/irq.c中定义 在MACHINE_START中赋值给.init_irq字段。
+//启动打印信息：irq: clearing subpending status 00000002
 }
+//单板信息结构体machine_desc中成员函数.init通过platform_add_devices将包含各外设寄存器起始物理地址的platform device注册到
+//内核(一般这些物理地址在/drivers目录下的各驱动中用io_remap完成地址映射)。
 
 #ifdef CONFIG_MULTI_IRQ_HANDLER
 void __init set_handle_irq(void (*handle_irq)(struct pt_regs *))

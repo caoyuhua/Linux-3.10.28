@@ -2621,7 +2621,9 @@ void sock_unregister(int family)
 }
 EXPORT_SYMBOL(sock_unregister);
 
-static int __init sock_init(void)
+static int __init sock_init(void)//called by core_initcall(sock_init),被加入.init段从而在系统启动时依次被do_initcalls()调用;
+//start_kernel-->rest_init-->调kernel_thread产生kernel_init进程-->do_basic_setup-->do_initcalls()
+//单板信息已经初始化完成--->后面do_initcall会依次完成各文件系统、网络协议、console虚拟控制台tty1和串口控制台ttySAC0及各种驱动的初始化
 {
 	int err;
 	/*
@@ -2634,7 +2636,7 @@ static int __init sock_init(void)
 	/*
 	 *      Initialize skbuff SLAB cache
 	 */
-	skb_init();
+	skb_init();//sk_buff缓存的初始化
 
 	/*
 	 *      Initialize the protocols module.
@@ -2652,10 +2654,10 @@ static int __init sock_init(void)
 	}
 
 	/* The real protocol initialization is performed in later initcalls.
-	 */
+	 *///网络协议会在后面被初始化
 
 #ifdef CONFIG_NETFILTER
-	netfilter_init();
+	netfilter_init();//netfilter防火墙的初始化
 #endif
 
 #ifdef CONFIG_NETWORK_PHY_TIMESTAMPING

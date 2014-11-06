@@ -114,11 +114,12 @@ int __init register_persistent_clock(clock_access_fn read_boot,
 	return -EINVAL;
 }
 
-void __init time_init(void)
+void __init time_init(void)//called by start_kernel()
 {
 	if (machine_desc->init_time)
-		machine_desc->init_time();
-	else
+		machine_desc->init_time();//执行单板信息结构体machine_desc中的成员函数,打印信息：timer tcon=00500000, tcnt a509, tcfg 00000200,00000000, usec 00001e4c
+	else//单板信息结构体machine_desc中成员函数.init通过platform_add_devices将包含各外设寄存器起始物理地址的platform device注册到
+//内核(一般这些物理地址在/drivers目录下的各驱动中用io_remap完成地址映射)。
 		clocksource_of_init();
 
 	sched_clock_postinit();

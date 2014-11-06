@@ -756,14 +756,15 @@ void __init hyp_mode_check(void)
 #endif
 }
 
-void __init setup_arch(char **cmdline_p)
+void __init setup_arch(char **cmdline_p)//called by start_kernel()
 {
 	struct machine_desc *mdesc;
 
-	setup_processor();
+	setup_processor();//启动打印信息:CPU: ARM920T [41129200] revision 0 (ARMv4T)
 	mdesc = setup_machine_fdt(__atags_pointer);
-	if (!mdesc)
-		mdesc = setup_machine_tags(__atags_pointer, __machine_arch_type);
+	if (!mdesc)//保存单板信息的结构体machine_desc（单板各gpio口寄存器物理地址定义在drivers/gpio/gpio-Samsung.C中）：首先通
+//过解析dts文件来初始化，若解析失败则通过MACHINE_START宏来初始化(MACHINE_START定义在/arch/arm/match_s3c2416/common_smdk.c中)
+		mdesc = setup_machine_tags(__atags_pointer, __machine_arch_type);//启动打印信息：Machine: SMDK2410
 	machine_desc = mdesc;
 	machine_name = mdesc->name;
 
@@ -787,11 +788,14 @@ void __init setup_arch(char **cmdline_p)
 	sanity_check_meminfo();
 	arm_memblock_init(&meminfo, mdesc);
 
-	paging_init(mdesc);
+	paging_init(mdesc);//调用mdesc中的各个函数，打印时钟初始化信息S3C2410: core 202.800 MHz, memory 101.400 MHz, peripheral 50.700 MHz
+//除了struct machine_desc外，struct cpu_table也包含大量单板初始化函数（其他架构一般不用该结构体，arm架构慢慢也会不用目前一般在/arch/arm/plat_s3c24xx/cpu.c中）
 	request_standard_resources(mdesc);
 
 	if (mdesc->restart)
 		arm_pm_restart = mdesc->restart;
+//单板信息结构体machine_desc中成员函数.init通过platform_add_devices将包含各外设寄存器起始物理地址的platform device注册到
+//内核(一般这些物理地址在/drivers目录下的各驱动中用io_remap完成地址映射)。
 
 	unflatten_device_tree();
 
