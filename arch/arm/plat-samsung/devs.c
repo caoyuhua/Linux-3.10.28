@@ -918,14 +918,14 @@ struct platform_device s5p_device_mipi_csis1 = {
 
 #ifdef CONFIG_S3C_DEV_NAND
 static struct resource s3c_nand_resource[] = {
-	[0] = DEFINE_RES_MEM(S3C_PA_NAND, SZ_1M),
+	[0] = DEFINE_RES_MEM(S3C_PA_NAND, SZ_1M),//S3C_PA_NAND定义在arch/arm/mach-s3c24xx/include/mach/map.h中
 };
 
-struct platform_device s3c_device_nand = {
+struct platform_device s3c_device_nand = {//定义平台设备
 	.name		= "s3c2410-nand",
 	.id		= -1,
 	.num_resources	= ARRAY_SIZE(s3c_nand_resource),
-	.resource	= s3c_nand_resource,
+	.resource	= s3c_nand_resource,//包含flash控制寄存器的物理基地址
 };
 
 /*

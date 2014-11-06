@@ -1150,7 +1150,7 @@ static int mtdchar_mmap(struct file *file, struct vm_area_struct *vma)
 
 static const struct file_operations mtd_fops = {
 	.owner		= THIS_MODULE,
-	.llseek		= mtdchar_lseek,
+	.llseek		= mtdchar_lseek,//驱动定义的lseek函数
 	.read		= mtdchar_read,
 	.write		= mtdchar_write,
 	.unlocked_ioctl	= mtdchar_unlocked_ioctl,
@@ -1187,7 +1187,7 @@ int __init init_mtdchar(void)
 {
 	int ret;
 
-	ret = __register_chrdev(MTD_CHAR_MAJOR, 0, 1 << MINORBITS,
+	ret = __register_chrdev(MTD_CHAR_MAJOR, 0, 1 << MINORBITS,//只是注册mtd字符设备并分配到主设备号90，但此时并未在/dev目录下产生任何节点
 				   "mtd", &mtd_fops);
 	if (ret < 0) {
 		pr_err("Can't allocate major number %d for MTD\n",

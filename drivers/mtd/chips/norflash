@@ -1,0 +1,1 @@
+本目录下用于存放norflash的底层驱动，/drivers/mtd/nand目录下用于存放nandflash的驱动

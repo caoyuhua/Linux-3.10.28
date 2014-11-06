@@ -945,14 +945,14 @@ static int s3c24xx_nand_probe(struct platform_device *pdev)
 	/* allocate and map the resource */
 
 	/* currently we assume we have the one resource */
-	res = pdev->resource;
+	res = pdev->resource;//struct resource结构体，包含flash控制寄存器的物理基地址。
 	size = resource_size(res);
 
 	info->device	= &pdev->dev;
 	info->platform	= plat;
 	info->cpu_type	= cpu_type;
 
-	info->regs = devm_ioremap_resource(&pdev->dev, res);
+	info->regs = devm_ioremap_resource(&pdev->dev, res);//将平台设备中所包含的flash控制寄存器物理基地址映射成虚拟地址(ioremap)
 	if (IS_ERR(info->regs)) {
 		err = PTR_ERR(info->regs);
 		goto exit_error;
@@ -962,7 +962,7 @@ static int s3c24xx_nand_probe(struct platform_device *pdev)
 
 	/* initialise the hardware */
 
-	err = s3c2410_nand_inithw(info);
+	err = s3c2410_nand_inithw(info);//直接操作flash各控制寄存器，完成nandflash的初始化
 	if (err != 0)
 		goto exit_error;
 
@@ -1081,7 +1081,7 @@ static int s3c24xx_nand_resume(struct platform_device *dev)
 
 static struct platform_device_id s3c24xx_driver_ids[] = {
 	{
-		.name		= "s3c2410-nand",
+		.name		= "s3c2410-nand",//此.name字段必须与平台设备中的.name字段匹配
 		.driver_data	= TYPE_S3C2410,
 	}, {
 		.name		= "s3c2440-nand",
@@ -1099,7 +1099,7 @@ static struct platform_device_id s3c24xx_driver_ids[] = {
 MODULE_DEVICE_TABLE(platform, s3c24xx_driver_ids);
 
 static struct platform_driver s3c24xx_nand_driver = {
-	.probe		= s3c24xx_nand_probe,
+	.probe		= s3c24xx_nand_probe,//.probe成员函数
 	.remove		= s3c24xx_nand_remove,
 	.suspend	= s3c24xx_nand_suspend,
 	.resume		= s3c24xx_nand_resume,
@@ -1110,7 +1110,7 @@ static struct platform_driver s3c24xx_nand_driver = {
 	},
 };
 
-module_platform_driver(s3c24xx_nand_driver);
+module_platform_driver(s3c24xx_nand_driver);//将s3c24xx_nand_driver注册到内核：平台总线匹配到3c24xx_nand_driver的.id_table->.name字段一致的平台设备时，调用.probe成员函数s3c24xx_nand_probe。
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Ben Dooks <ben@simtec.co.uk>");

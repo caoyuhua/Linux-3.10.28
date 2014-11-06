@@ -376,7 +376,7 @@ static struct mtd_blktrans_ops mtdblock_tr = {
 	.major		= 31,
 	.part_bits	= 0,
 	.blksize 	= 512,
-	.open		= mtdblock_open,
+	.open		= mtdblock_open,//驱动定义的块设备open函数
 	.flush		= mtdblock_flush,
 	.release	= mtdblock_release,
 	.readsect	= mtdblock_readsect,
@@ -388,7 +388,7 @@ static struct mtd_blktrans_ops mtdblock_tr = {
 
 static int __init init_mtdblock(void)
 {
-	return register_mtd_blktrans(&mtdblock_tr);
+	return register_mtd_blktrans(&mtdblock_tr);//想内核注册块设备并分配到设备号，但/dev目录下并未生成任何节点
 }
 
 static void __exit cleanup_mtdblock(void)

@@ -641,7 +641,7 @@ int add_mtd_partitions(struct mtd_info *master,
 		list_add(&slave->list, &mtd_partitions);
 		mutex_unlock(&mtd_partitions_mutex);
 
-		add_mtd_device(&slave->mtd);
+		add_mtd_device(&slave->mtd);//该函数在/dev目录下创建mtd0 mtd1及mtdblock0 mtdbloc1
 
 		cur_offset = slave->offset + slave->mtd.size;
 	}

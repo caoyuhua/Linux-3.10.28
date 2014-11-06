@@ -176,7 +176,7 @@ static struct s3c2410_platform_nand smdk_nand_info = {
 /* devices we initialise */
 
 static struct platform_device __initdata *smdk_devs[] = {
-	&s3c_device_nand,
+	&s3c_device_nand,//平台设备，s3c_device_nand定义在arch/arm/plat-samsung/devs.c
 	&smdk_led4,
 	&smdk_led5,
 	&smdk_led6,
@@ -204,7 +204,7 @@ void __init smdk_machine_init(void)
 
 	s3c_nand_set_platdata(&smdk_nand_info);
 
-	platform_add_devices(smdk_devs, ARRAY_SIZE(smdk_devs));//添加平台设备
+	platform_add_devices(smdk_devs, ARRAY_SIZE(smdk_devs));//将平台设备注册到内核
 
 	s3c_pm_init();
 }

@@ -81,7 +81,7 @@
 #define S3C24XX_SZ_LCD	   SZ_1M
 
 /* NAND flash controller */
-#define S3C2410_PA_NAND	   (0x4E000000)
+#define S3C2410_PA_NAND	   (0x4E000000)//nandflash控制寄存器的基地址
 
 /* IIC hardware controller */
 #define S3C2410_PA_IIC	   (0x54000000)

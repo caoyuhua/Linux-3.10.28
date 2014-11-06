@@ -1165,7 +1165,7 @@ static int __init init_mtd(void)
 {
 	int ret;
 
-	ret = class_register(&mtd_class);
+	ret = class_register(&mtd_class);//注册mtd_class类,后面调用add_mtd_device-->device_create(&mtd_class)时会用到这个类，并在/dev目录下创建各设备节点
 	if (ret)
 		goto err_reg;
 
