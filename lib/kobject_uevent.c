@@ -29,9 +29,9 @@
 
 
 u64 uevent_seqnum;
-char uevent_helper[UEVENT_HELPER_PATH_LEN] = CONFIG_UEVENT_HELPER_PATH;
+char uevent_helper[UEVENT_HELPER_PATH_LEN] = CONFIG_UEVENT_HELPER_PATH;//默认为/sys/kernel/uevent_helper,但可以menuconfig编译内核时配置或直接打开.config文件修改CONFIG_UEVENT_HELPER_PATH.
 #ifdef CONFIG_NET
-struct uevent_sock {
+struct uevent_sock {//用于通过netlink发送包含热插拔事件的消息
 	struct list_head list;
 	struct sock *sk;
 };
@@ -129,7 +129,7 @@ static int kobj_usermode_filter(struct kobject *kobj)
  * corresponding error when it fails.
  */
 int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
-		       char *envp_ext[])
+		       char *envp_ext[])//增加并设置环境变量ACTION SUBSYSTEM DEVPATH;调用netlink发送uevent消息-同时读取/sys/kernel/uevent_helpler中的内容并执行(内容一般为/sbin/mdev)
 {
 	struct kobj_uevent_env *env;
 	const char *action_string = kobject_actions[action];
@@ -149,7 +149,7 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 
 	/* search the kset we belong to */
 	top_kobj = kobj;
-	while (!top_kobj->kset && top_kobj->parent)
+	while (!top_kobj->kset && top_kobj->parent)//kobject代表sysfs中的目录
 		top_kobj = top_kobj->parent;
 
 	if (!top_kobj->kset) {
@@ -170,7 +170,7 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 		return 0;
 	}
 	/* skip the event, if the filter returns zero. */
-	if (uevent_ops && uevent_ops->filter)
+	if (uevent_ops && uevent_ops->filter)//若kset中有filter函数则调用filter函数，看看是否需要过滤uevent消息。
 		if (!uevent_ops->filter(kset, kobj)) {
 			pr_debug("kobject: '%s' (%p): %s: filter function "
 				 "caused the event to drop!\n",
@@ -203,7 +203,7 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 	}
 
 	/* default keys */
-	retval = add_uevent_var(env, "ACTION=%s", action_string);
+	retval = add_uevent_var(env, "ACTION=%s", action_string);//添加并设置ACTION DEVPATH和SUBSYSTEM这三个环境变量
 	if (retval)
 		goto exit;
 	retval = add_uevent_var(env, "DEVPATH=%s", devpath);
@@ -252,7 +252,7 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 		goto exit;
 	}
 
-#if defined(CONFIG_NET)
+#if defined(CONFIG_NET)//通过netlink将包含热插拔事件和环境变量的消息发送出去：便于udev或procd中的hotplug守护程序netlink接收该消息，解析消息内容并调用/etc/hotplug.d/*中脚本。
 	/* send netlink message */
 	list_for_each_entry(ue_sk, &uevent_sock_list, list) {
 		struct sock *uevent_sock = ue_sk->sk;
@@ -280,7 +280,7 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 			}
 
 			NETLINK_CB(skb).dst_group = 1;
-			retval = netlink_broadcast_filtered(uevent_sock, skb,
+			retval = netlink_broadcast_filtered(uevent_sock, skb,//netlink,通过广播将消息发送出去:udev rulefiles(procd_hotplug_deamon hotplug_json.script)
 							    0, 1, GFP_KERNEL,
 							    kobj_bcast_filter,
 							    kobj);
@@ -294,7 +294,7 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 	mutex_unlock(&uevent_sock_mutex);
 
 	/* call uevent_helper, usually only enabled during early boot */
-	if (uevent_helper[0] && !kobj_usermode_filter(kobj)) {
+	if (uevent_helper[0] && !kobj_usermode_filter(kobj)) {//默认读取/sys/kernel/uevent_helper中的程序并执行(uevent_helper内容一般为/sbin/mdev)
 		char *argv [3];
 
 		argv [0] = uevent_helper;
@@ -328,7 +328,7 @@ EXPORT_SYMBOL_GPL(kobject_uevent_env);
  * Returns 0 if kobject_uevent() is completed with success or the
  * corresponding error when it fails.
  */
-int kobject_uevent(struct kobject *kobj, enum kobject_action action)
+int kobject_uevent(struct kobject *kobj, enum kobject_action action)//called by device_add.
 {
 	return kobject_uevent_env(kobj, action, NULL);
 }

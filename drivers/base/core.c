@@ -999,7 +999,7 @@ int device_private_init(struct device *dev)
  * if it returned an error! Always use put_device() to give up your
  * reference instead.
  */
-int device_add(struct device *dev)
+int device_add(struct device *dev)//device_add
 {
 	struct device *parent = NULL;
 	struct kobject *kobj;
@@ -1093,7 +1093,7 @@ int device_add(struct device *dev)
 		blocking_notifier_call_chain(&dev->bus->p->bus_notifier,
 					     BUS_NOTIFY_ADD_DEVICE, dev);
 
-	kobject_uevent(&dev->kobj, KOBJ_ADD);
+	kobject_uevent(&dev->kobj, KOBJ_ADD);//call kobject_uevent：通过netlink套接字发送热插拔消息，并读取/sys/kernel/uevent_helper执行(echo /sbin/mdev > /sys/kernel/uevent_helper)
 	bus_probe_device(dev);
 	if (parent)
 		klist_add_tail(&dev->p->knode_parent,
