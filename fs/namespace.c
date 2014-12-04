@@ -2707,7 +2707,7 @@ static void __init init_mount_tree(void)
 	set_fs_root(current->fs, &root);
 }
 
-void __init mnt_init(void)
+void __init mnt_init(void)//called by vfs_caches_init()
 {
 	unsigned u;
 	int err;
@@ -2739,7 +2739,7 @@ void __init mnt_init(void)
 	fs_kobj = kobject_create_and_add("fs", NULL);
 	if (!fs_kobj)
 		printk(KERN_WARNING "%s: kobj create error\n", __func__);
-	init_rootfs();
+	init_rootfs();//rootfs文件系统生成时默认挂载在Linux NFS的根目录上:该问价年系统类似sysfs及proc，不过此时rootfs文件系统中内容为空只有.和..
 	init_mount_tree();
 }
 

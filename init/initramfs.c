@@ -579,7 +579,7 @@ static void __init clean_rootfs(void)
 }
 #endif
 
-static int __init populate_rootfs(void)
+static int __init populate_rootfs(void)//populate_rootfs
 {
 	char *err = unpack_to_rootfs(__initramfs_start, __initramfs_size);
 	if (err)
@@ -595,7 +595,7 @@ static int __init populate_rootfs(void)
 			goto done;
 		} else {
 			clean_rootfs();
-			unpack_to_rootfs(__initramfs_start, __initramfs_size);
+			unpack_to_rootfs(__initramfs_start, __initramfs_size);//解压编译到内核的initramfs到rootfs文件系统
 		}
 		printk(KERN_INFO "rootfs image is not initramfs (%s)"
 				"; looks like an initrd\n", err);
@@ -624,4 +624,4 @@ static int __init populate_rootfs(void)
 	}
 	return 0;
 }
-rootfs_initcall(populate_rootfs);
+rootfs_initcall(populate_rootfs);//rootfs_initcall，将populate_rootfs放到*init代码段以便被start_kernel-->rest_init-->kernel_thread(kernel_init)-->do_basic_setup调用。

@@ -614,7 +614,7 @@ asmlinkage void __init start_kernel(void)
 	key_init();
 	security_init();
 	dbg_late_init();
-	vfs_caches_init(totalram_pages);
+	vfs_caches_init(totalram_pages);//called by start_kernel(),vfs_caches_init-->mnt_init-->init_rootfs;init_mount_tree
 	signals_init();
 	/* rootfs populating might need page-writeback */
 	page_writeback_init();
@@ -639,7 +639,7 @@ asmlinkage void __init start_kernel(void)
 	ftrace_init();
 
 	/* Do the rest non-__init'ed, we're now alive */
-	rest_init();
+	rest_init();//rest_init-->kernel_thread(kernel_init)-->kernel_init-->do_basic_setup;prepare_namespace()
 }
 
 /* Call all constructor functions linked into the kernel. */
@@ -768,7 +768,7 @@ static void __init do_initcalls(void)
  *
  * Now we can finally start doing some real work..
  */
-static void __init do_basic_setup(void)
+static void __init do_basic_setup(void)//called by kernel_init()
 {
 	cpuset_init_smp();
 	usermodehelper_init();
@@ -777,7 +777,7 @@ static void __init do_basic_setup(void)
 	init_irq_proc();
 	do_ctors();
 	usermodehelper_enable();
-	do_initcalls();
+	do_initcalls();//调用所有模块的初始化函数（通过xx_initcall放在*.init段的代码）：包括populate_rootfs()
 	random_int_secret_init();
 }
 
@@ -812,7 +812,7 @@ static noinline void __init kernel_init_freeable(void);
 
 static int __ref kernel_init(void *unused)
 {
-	kernel_init_freeable();
+	kernel_init_freeable();//In kernel_init_freeable,It calls do_basic_setup + prepare_namespace
 	/* need to finish all async __init code before freeing the memory */
 	async_synchronize_full();
 	free_initmem();
@@ -850,7 +850,7 @@ static int __ref kernel_init(void *unused)
 	      "See Linux Documentation/init.txt for guidance.");
 }
 
-static noinline void __init kernel_init_freeable(void)
+static noinline void __init kernel_init_freeable(void)//called by kernel_init
 {
 	/*
 	 * Wait until kthreadd is all set-up.
@@ -879,7 +879,7 @@ static noinline void __init kernel_init_freeable(void)
 	smp_init();
 	sched_init_smp();
 
-	do_basic_setup();
+	do_basic_setup();//do_basic_setup
 
 	/* Open the /dev/console on the rootfs, this should never fail */
 	if (sys_open((const char __user *) "/dev/console", O_RDWR, 0) < 0)
@@ -893,11 +893,11 @@ static noinline void __init kernel_init_freeable(void)
 	 */
 
 	if (!ramdisk_execute_command)
-		ramdisk_execute_command = "/init";
+		ramdisk_execute_command = "/init";//若内核里面编译进initramfs，则此时initramfs已被解压到rootfs文件系统-->查找rootfs文件系统中init进程文件并执行-->若查找不到则执行prepare_namespace.
 
 	if (sys_access((const char __user *) ramdisk_execute_command, 0) != 0) {
 		ramdisk_execute_command = NULL;
-		prepare_namespace();
+		prepare_namespace();//prepare_namespace:根据boot命令行bootargs boot=/dev/mtdblock3指示的存放rootfs映像的存储设备，加载对应存储设备驱动并在rootfs文件系统中创建设备文件/dev/root(此时rootfs文件系统中只有.和..和/dev/root)
 	}
 
 	/*

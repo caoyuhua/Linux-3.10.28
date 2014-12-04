@@ -352,25 +352,25 @@ static void __init get_fs_names(char *page)
 	*s = '\0';
 }
 
-static int __init do_mount_root(char *name, char *fs, int flags, void *data)
+static int __init do_mount_root(char *name, char *fs, int flags, void *data)//do_mount_root
 {
 	struct super_block *s;
 	int err = sys_mount(name, "/root", fs, flags, data);
 	if (err)
 		return err;
 
-	sys_chdir("/root");
+	sys_chdir("/root");//创建/root目录
 	s = current->fs->pwd.dentry->d_sb;
 	ROOT_DEV = s->s_dev;
 	printk(KERN_INFO
-	       "VFS: Mounted root (%s filesystem)%s on device %u:%u.\n",
+	       "VFS: Mounted root (%s filesystem)%s on device %u:%u.\n",//VFS:Mounted /root on device /dev/root
 	       s->s_type->name,
 	       s->s_flags & MS_RDONLY ?  " readonly" : "",
 	       MAJOR(ROOT_DEV), MINOR(ROOT_DEV));
 	return 0;
 }
 
-void __init mount_block_root(char *name, int flags)
+void __init mount_block_root(char *name, int flags)//mount_block_root
 {
 	struct page *page = alloc_page(GFP_KERNEL |
 					__GFP_NOTRACK_FALSE_POSITIVE);
@@ -385,7 +385,7 @@ void __init mount_block_root(char *name, int flags)
 	get_fs_names(fs_names);
 retry:
 	for (p = fs_names; *p; p += strlen(p)+1) {
-		int err = do_mount_root(name, p, flags, root_mount_data);
+		int err = do_mount_root(name, p, flags, root_mount_data);//do_mount_root
 		switch (err) {
 			case 0:
 				goto out;
@@ -531,7 +531,7 @@ void __init mount_root(void)
 /*
  * Prepare the namespace - decide what/where to mount, load ramdisks, etc.
  */
-void __init prepare_namespace(void)
+void __init prepare_namespace(void)//called by kernel_init_freeable
 {
 	int is_floppy;
 
@@ -548,18 +548,18 @@ void __init prepare_namespace(void)
 	 * For example, it is not atypical to wait 5 seconds here
 	 * for the touchpad of a laptop to initialize.
 	 */
-	wait_for_device_probe();
+	wait_for_device_probe();//wait for the known devices to complete their probing
 
 	md_run_setup();
 
 	if (saved_root_name[0]) {
 		root_device_name = saved_root_name;
-		if (!strncmp(root_device_name, "mtd", 3) ||
+		if (!strncmp(root_device_name, "mtd", 3) ||//若bootargs root=mtdxx则执行此处
 		    !strncmp(root_device_name, "ubi", 3)) {
 			mount_block_root(root_device_name, root_mountflags);
 			goto out;
 		}
-		ROOT_DEV = name_to_dev_t(root_device_name);
+		ROOT_DEV = name_to_dev_t(root_device_name);//若bootargs root=/dev/mtdblockxx则执行此处
 		if (strncmp(root_device_name, "/dev/", 5) == 0)
 			root_device_name += 5;
 	}
@@ -582,9 +582,9 @@ void __init prepare_namespace(void)
 	if (is_floppy && rd_doload && rd_load_disk(0))
 		ROOT_DEV = Root_RAM0;
 
-	mount_root();
+	mount_root();//mount_root-->create_dev("/dev/root",DEV_ROOT);mount_block_root("/dev/root",root_mountflags)：mount_block_root中在rootfs文件系统中创建/root目录并将/dev/root挂载到/root(此时rootfs文件系统中只有.和..和/dev/root和/root)
 out:
 	devtmpfs_mount("dev");
-	sys_mount(".", "/", NULL, MS_MOVE, NULL);
-	sys_chroot(".");
+	sys_mount(".", "/", NULL, MS_MOVE, NULL);//将/root移动挂载到/
+	sys_chroot(".");//将当前文件系统切换为系统根文件系统
 }
