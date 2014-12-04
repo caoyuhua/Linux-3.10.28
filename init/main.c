@@ -499,7 +499,7 @@ asmlinkage void __init start_kernel(void)
 	boot_cpu_init();
 	page_address_init();
 	pr_notice("%s", linux_banner);
-	setup_arch(&command_line);
+	setup_arch(&command_line);//设置与初始化硬件体系相关的环境并调用
 	mm_init_owner(&init_mm, &init_task);
 	mm_init_cpumask(&init_mm);
 	setup_command_line(command_line);
@@ -527,14 +527,14 @@ asmlinkage void __init start_kernel(void)
 	vfs_caches_init_early();
 	sort_main_extable();
 	trap_init();
-	mm_init();
+	mm_init();//初始化内存并计算可用内存大小
 
 	/*
 	 * Set up the scheduler prior starting any interrupts (such as the
 	 * timer interrupt). Full topology setup happens at smp_init()
 	 * time - but meanwhile we still have a functioning scheduler.
 	 */
-	sched_init();
+	sched_init();//初始化调度器(要先于中断开启前??)
 	/*
 	 * Disable preemption - early bootup scheduling is extremely
 	 * fragile until we cpu_idle() for the first time.
@@ -548,14 +548,14 @@ asmlinkage void __init start_kernel(void)
 	tick_nohz_init();
 	radix_tree_init();
 	/* init some links before init_ISA_irqs() */
-	early_irq_init();
+	early_irq_init();//中断初始化过程
 	init_IRQ();
 	tick_init();
-	init_timers();
+	init_timers();//初始化定时器并开启定时器软中断服务;初始化各cpu中的init_timers
 	hrtimers_init();
 	softirq_init();
 	timekeeping_init();
-	time_init();
+	time_init();//设置定时器并返回当前时间
 	profile_init();
 	call_function_init();
 	WARN(!irqs_disabled(), "Interrupts were enabled early\n");
@@ -608,14 +608,14 @@ asmlinkage void __init start_kernel(void)
 #endif
 	thread_info_cache_init();
 	cred_init();
-	fork_init(totalram_pages);
+	fork_init(totalram_pages);//初始化max_threads、init_task参数为fork提供参考
 	proc_caches_init();
-	buffer_init();
+	buffer_init();//初始化块设备读写缓冲区
 	key_init();
 	security_init();
 	dbg_late_init();
 	vfs_caches_init(totalram_pages);//called by start_kernel(),vfs_caches_init-->mnt_init-->init_rootfs;init_mount_tree
-	signals_init();
+	signals_init();//初始化内核信号队列
 	/* rootfs populating might need page-writeback */
 	page_writeback_init();
 #ifdef CONFIG_PROC_FS
@@ -640,7 +640,7 @@ asmlinkage void __init start_kernel(void)
 
 	/* Do the rest non-__init'ed, we're now alive */
 	rest_init();//rest_init-->kernel_thread(kernel_init)-->kernel_init-->do_basic_setup;prepare_namespace()
-}
+}//最终进入rest_init(),完成各外设硬件驱动、fs、网络等各模块的初始化(do_basic_setup)
 
 /* Call all constructor functions linked into the kernel. */
 static void __init do_ctors(void)
