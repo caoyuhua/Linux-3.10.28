@@ -28,7 +28,7 @@
 #include <linux/cdev.h>
 #include "input-compat.h"
 
-struct evdev {
+struct evdev {///dev/input/event0 event1:input设备主设备号major为13，eventxx对应一个次设备号(根据具体硬件设备probe的先后顺序分配的,上层应用open eventxx文件本质上都是调用本文件evdev_fops中的open成员函数.
 	int open;
 	struct input_handle handle;
 	wait_queue_head_t wait;
@@ -40,6 +40,7 @@ struct evdev {
 	struct cdev cdev;
 	bool exist;
 };
+//可通过ls /sys/class/input/eventxx/device来查看/dev/input/eventxx具体对应的哪个硬件设备(鼠标 按键还是触摸屏?若鼠标驱动先probe占用了event0，则按键就被分配event1)
 
 struct evdev_client {
 	unsigned int head;
@@ -911,7 +912,7 @@ static long evdev_ioctl_compat(struct file *file,
 #endif
 
 static const struct file_operations evdev_fops = {
-	.owner		= THIS_MODULE,
+	.owner		= THIS_MODULE,//应用open /dev/input/eventxx时便会调用此evdev_fops中的open成员函数
 	.read		= evdev_read,
 	.write		= evdev_write,
 	.poll		= evdev_poll,
@@ -1048,19 +1049,21 @@ static const struct input_device_id evdev_ids[] = {
 MODULE_DEVICE_TABLE(input, evdev_ids);
 
 static struct input_handler evdev_handler = {
-	.event		= evdev_event,
+	.event		= evdev_event,//input_dev产生事件时调用此成员函数处理事件(事件包含type code 和value字段，将包含这三个字段的消息写到/dev/input/eventxx?)
 	.events		= evdev_events,
-	.connect	= evdev_connect,
+	.connect	= evdev_connect,//将/driver/input/xx底层设备驱动与/dev/input/eventxx建立对应关系(配对，若event0被配对后后面的就只能用event2...)
 	.disconnect	= evdev_disconnect,
 	.legacy_minors	= true,
 	.minor		= EVDEV_MINOR_BASE,
 	.name		= "evdev",
-	.id_table	= evdev_ids,
+	.id_table	= evdev_ids,//上层事件处理器evdev_handler mousedev_handler等通过evdev_ids(input_device_id结构体)vendor等字段与
+///driver/input/touchscreen/s3c24_ts.c中input_id(iput_dev中的成员结构体)verdor等字段匹配后即可调用evdev_connect函数-->将设备驱动与
+///dev/input/xx建立对应关系.
 };
 
 static int __init evdev_init(void)
 {
-	return input_register_handler(&evdev_handler);
+	return input_register_handler(&evdev_handler);//注册Event handler:evdev.c joydev.c mousedev.c
 }
 
 static void __exit evdev_exit(void)
