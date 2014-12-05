@@ -275,10 +275,10 @@ struct adxl34x_platform_data {
 	 * select the event type and event code for new x, y and z axis data
 	 * respectively.
 	 */
-	u32 ev_type;	/* EV_ABS or EV_REL */
+	u32 ev_type;	/* EV_ABS or EV_REL *///ev_type
 
-	u32 ev_code_x;	/* ABS_X,Y,Z or REL_X,Y,Z */
-	u32 ev_code_y;	/* ABS_X,Y,Z or REL_X,Y,Z */
+	u32 ev_code_x;	/* ABS_X,Y,Z or REL_X,Y,Z *///鼠标触屏或joy游戏柄:位移x
+	u32 ev_code_y;	/* ABS_X,Y,Z or REL_X,Y,Z *///鼠标触屏或joy游戏柄:位移y
 	u32 ev_code_z;	/* ABS_X,Y,Z or REL_X,Y,Z */
 
 	/*

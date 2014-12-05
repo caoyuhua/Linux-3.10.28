@@ -31,7 +31,7 @@
  * @value: the value
  */
 struct input_value {
-	__u16 type;
+	__u16 type;//事件类型:如按键类EV_KEY,绝对位移类EV_ABS
 	__u16 code;
 	__s32 value;
 };
@@ -118,7 +118,7 @@ struct input_value {
  * @devres_managed: indicates that devices is managed with devres framework
  *	and needs not be explicitly unregistered or freed.
  */
-struct input_dev {
+struct input_dev {//向下提供input_dev输入设备接口:需要用到输入子系统的底层驱动都会注册一个input_dev设备。
 	const char *name;
 	const char *phys;
 	const char *uniq;
@@ -126,10 +126,10 @@ struct input_dev {
 
 	unsigned long propbit[BITS_TO_LONGS(INPUT_PROP_CNT)];
 
-	unsigned long evbit[BITS_TO_LONGS(EV_CNT)];
-	unsigned long keybit[BITS_TO_LONGS(KEY_CNT)];
+	unsigned long evbit[BITS_TO_LONGS(EV_CNT)];//表示底层硬件设备能产生哪类事件:单个按键或usb键盘的按键事件，joy游戏柄和usb鼠标及触摸屏的位移事件.
+	unsigned long keybit[BITS_TO_LONGS(KEY_CNT)];//按键值:0-9 a-z A-Z TAB键及特殊符号等.
 	unsigned long relbit[BITS_TO_LONGS(REL_CNT)];
-	unsigned long absbit[BITS_TO_LONGS(ABS_CNT)];
+	unsigned long absbit[BITS_TO_LONGS(ABS_CNT)];//位移x,y
 	unsigned long mscbit[BITS_TO_LONGS(MSC_CNT)];
 	unsigned long ledbit[BITS_TO_LONGS(LED_CNT)];
 	unsigned long sndbit[BITS_TO_LONGS(SND_CNT)];
@@ -281,7 +281,7 @@ struct input_handle;
  * Note that input core serializes calls to connect() and disconnect()
  * methods.
  */
-struct input_handler {
+struct input_handler {//向上提供的input_handler事件处理器接口
 
 	void *private;
 

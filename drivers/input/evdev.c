@@ -1009,7 +1009,7 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
 
 	cdev_init(&evdev->cdev, &evdev_fops);
 	evdev->cdev.kobj.parent = &evdev->dev.kobj;
-	error = cdev_add(&evdev->cdev, evdev->dev.devt, 1);
+	error = cdev_add(&evdev->cdev, evdev->dev.devt, 1);//注册字符设备，即产生文件/dev/input/eventxx
 	if (error)
 		goto err_unregister_handle;
 

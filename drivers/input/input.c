@@ -2155,7 +2155,7 @@ EXPORT_SYMBOL(input_unregister_device);
  * devices in the system and attaches it to all input devices that
  * are compatible with the handler.
  */
-int input_register_handler(struct input_handler *handler)
+int input_register_handler(struct input_handler *handler)//为上层提供的接口:用于evdev.C joydev.c中注册evdev_handler等事件处理器.
 {
 	struct input_dev *dev;
 	int error;
@@ -2169,7 +2169,7 @@ int input_register_handler(struct input_handler *handler)
 	list_add_tail(&handler->node, &input_handler_list);
 
 	list_for_each_entry(dev, &input_dev_list, node)
-		input_attach_handler(dev, handler);
+		input_attach_handler(dev, handler);//将input_dev底层输入设备和input_handler事件处理器配对
 
 	input_wakeup_procfs_readers();
 
@@ -2359,25 +2359,25 @@ void input_free_minor(unsigned int minor)
 	ida_simple_remove(&input_ida, minor);
 }
 EXPORT_SYMBOL(input_free_minor);
-
-static int __init input_init(void)
+//input子系统核心层：向下为各硬件驱动提供input_dev接口，向上提供input_handler事件处理器接口。
+static int __init input_init(void)//input子系统初始化函数
 {
 	int err;
 
-	err = class_register(&input_class);
+	err = class_register(&input_class);//在/sys/class下产生一个input目录
 	if (err) {
 		pr_err("unable to register input_dev class\n");
 		return err;
 	}
 
-	err = input_proc_init();
+	err = input_proc_init();//和procfs文件系统相关
 	if (err)
 		goto fail1;
 
-	err = register_chrdev_region(MKDEV(INPUT_MAJOR, 0),
+	err = register_chrdev_region(MKDEV(INPUT_MAJOR, 0),//注册字符设备：即在/dev目录下产生一个input目录
 				     INPUT_MAX_CHAR_DEVICES, "input");
 	if (err) {
-		pr_err("unable to register char major %d", INPUT_MAJOR);
+		pr_err("unable to register char major %d", INPUT_MAJOR);//以主设备号INPUT_MAJOR=13，次设备号0-255注册266个设备，说明input设备最大只能有255个.
 		goto fail2;
 	}
 

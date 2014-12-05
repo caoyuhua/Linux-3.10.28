@@ -390,7 +390,7 @@ enum hil_command {
 "english.us"		/* 0x1f United States */	\
 
 
-/* HIL keycodes */
+/* HIL keycodes *///单个小按键或usb键盘所能产生所有键值的定义:a-z A-Z 0-9特殊符号及TAB等按键.
 #define HIL_KEYCODES_SET1_TBLSIZE 128
 #define HIL_KEYCODES_SET1 	\
    KEY_5,		KEY_RESERVED,	KEY_RIGHTALT,	KEY_LEFTALT,	\
