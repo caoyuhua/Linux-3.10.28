@@ -392,11 +392,11 @@ static int samsung_keypad_probe(struct platform_device *pdev)
 
 	keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad) + keymap_size,
 			      GFP_KERNEL);
-	input_dev = devm_input_allocate_device(&pdev->dev);
+	input_dev = devm_input_allocate_device(&pdev->dev);//注册一个input_dev:方便矩阵键盘某按键按下时，type/code/value传到/dev/input/eventxx
 	if (!keypad || !input_dev)
 		return -ENOMEM;
 
-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);//从platform_device中获取ps/2控制寄存器物理地址
 	if (!res)
 		return -ENODEV;
 
@@ -473,7 +473,7 @@ static int samsung_keypad_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, keypad);
 	pm_runtime_enable(&pdev->dev);
 
-	error = input_register_device(keypad->input_dev);
+	error = input_register_device(keypad->input_dev);//注册input_dev
 	if (error)
 		goto err_disable_runtime_pm;
 
@@ -632,7 +632,7 @@ MODULE_DEVICE_TABLE(of, samsung_keypad_dt_match);
 
 static struct platform_device_id samsung_keypad_driver_ids[] = {
 	{
-		.name		= "samsung-keypad",
+		.name		= "samsung-keypad",//.name字段与arch/arm/platxx下平台设备的.name字段匹配后执行驱动probe函数
 		.driver_data	= KEYPAD_TYPE_SAMSUNG,
 	}, {
 		.name		= "s5pv210-keypad",

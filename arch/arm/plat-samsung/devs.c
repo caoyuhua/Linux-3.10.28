@@ -830,10 +830,10 @@ static struct resource samsung_keypad_resources[] = {
 };
 
 struct platform_device samsung_device_keypad = {
-	.name		= "samsung-keypad",
+	.name		= "samsung-keypad",//.name字段与ps/2键盘对应驱动/driver/input/keyboard/samsung-keypad.c的.name字段匹配.
 	.id		= -1,
 	.num_resources	= ARRAY_SIZE(samsung_keypad_resources),
-	.resource	= samsung_keypad_resources,
+	.resource	= samsung_keypad_resources,//ps/2圆形键盘接口(此处platform_device提供ps/2控制寄存器物理地址)
 };
 
 void __init samsung_keypad_set_platdata(struct samsung_keypad_platdata *pd)
