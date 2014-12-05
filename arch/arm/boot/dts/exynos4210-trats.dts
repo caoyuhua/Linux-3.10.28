@@ -15,7 +15,7 @@
 /dts-v1/;
 /include/ "exynos4210.dtsi"
 
-/ {
+/ {//三星系列暂时只对exynos系列处理器添加dts支持，其他如s3c24xx s3c64xx甚至s5pvxx系列处理器暂时还未提供dts配置(本目录可知:omap及imax厂商的芯片都已提供dts.)
 	model = "Samsung Trats based on Exynos4210";
 	compatible = "samsung,trats", "samsung,exynos4210";
 
@@ -65,8 +65,8 @@
 	};
 
 	gpio-keys {
-		compatible = "gpio-keys";
-
+		compatible = "gpio-keys";//单个按键，对应驱动/driver/input/keyboard/gpio-keys.c.
+//此处compatible字段"gpio-keys"与/driver/input/keyboard/gpio-keys.c平台驱动.name字段匹配后调用platform_driver的probe函数.
 		vol-down-key {
 			gpios = <&gpx2 1 1>;
 			linux,code = <114>;
@@ -74,7 +74,7 @@
 			debounce-interval = <10>;
 		};
 
-		vol-up-key {
+		vol-up-key {//同一个按键驱动/driver/input/keyboard/gpio-keys.c，不同的按键各有名字/sys/class/keys/vol-up-key
 			gpios = <&gpx2 0 1>;
 			linux,code = <115>;
 			label = "volume up";

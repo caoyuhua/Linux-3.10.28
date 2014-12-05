@@ -382,7 +382,8 @@ static struct gpio_keys_platform_data mini2440_button_data = {
 };
 
 static struct platform_device mini2440_button_device = {
-	.name		= "gpio-keys",
+	.name		= "gpio-keys",//单个按键，对应驱动/driver/input/keyboard/gpio-keys.c:此处.name字段必须与驱动.name字段一致
+//以便平台总线为platform_device和platform_driver配对后调用platform_driver的probe函数.
 	.id		= -1,
 	.dev		= {
 		.platform_data	= &mini2440_button_data,
@@ -392,12 +393,14 @@ static struct platform_device mini2440_button_device = {
 /* LEDS */
 
 static struct s3c24xx_led_platdata mini2440_led1_pdata = {
-	.name		= "led1",
+	.name		= "led1",//单个按键和单个led：驱动对应输入子系统/driver/input/keyboard/gpio-keys.c和led子系统/driver/leds/leds-s3c24xx.c.
 	.gpio		= S3C2410_GPB(5),
 	.flags		= S3C24XX_LEDF_ACTLOW | S3C24XX_LEDF_TRISTATE,
 	.def_trigger	= "heartbeat",
 };
 
+//单个按键和单个led不同于nand_flash驱动(需要nand控制寄存器物理地址)：单个按键和led需要gpio控制寄存器物理地址，但此处platform_device提供的只是GPIO编号
+//--->在/drivers/gpio/gpio-samsung.c中注册单板所有gpio控制寄存器和gpio编号，故单个led和按键可据GPIO编号资源获取gpio寄存器物理地址。
 static struct s3c24xx_led_platdata mini2440_led2_pdata = {
 	.name		= "led2",
 	.gpio		= S3C2410_GPB(6),
@@ -406,7 +409,7 @@ static struct s3c24xx_led_platdata mini2440_led2_pdata = {
 };
 
 static struct s3c24xx_led_platdata mini2440_led3_pdata = {
-	.name		= "led3",
+	.name		= "led3",//同一个led驱动/driver/leds/leds-s3c24xx.c，不同的led各有名字/sys/class/leds/led3
 	.gpio		= S3C2410_GPB(7),
 	.flags		= S3C24XX_LEDF_ACTLOW | S3C24XX_LEDF_TRISTATE,
 	.def_trigger	= "mmc0",

@@ -86,7 +86,8 @@ static int s3c24xx_led_probe(struct platform_device *dev)
 
 	led->cdev.brightness_set = s3c24xx_led_set;
 	led->cdev.default_trigger = pdata->def_trigger;
-	led->cdev.name = pdata->name;
+//platform_device.name字段s3c24xx负责与本驱动platform_driver.name字段匹配-->匹配后执行驱动probe函数.
+	led->cdev.name = pdata->name;//多个led(/sys/class/leds/*知各led对应不同的名字)：platform_device.dev.platform_data.name字段负责各led的名字.
 	led->cdev.flags |= LED_CORE_SUSPENDRESUME;
 
 	led->pdata = pdata;
@@ -108,6 +109,7 @@ static int s3c24xx_led_probe(struct platform_device *dev)
 	/* register our new led device */
 
 	ret = led_classdev_register(&dev->dev, &led->cdev);
+//此处只是/sys/class/leds/*创建各led名字命名的目录，并未在/dev/leds/*创建以各led名字命名的设备文件(需要cdev_add或register_chrdev：最终也是调cdev_add)
 	if (ret < 0)
 		dev_err(&dev->dev, "led_classdev_register failed\n");
 
