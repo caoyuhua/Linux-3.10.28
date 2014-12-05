@@ -227,19 +227,21 @@ static void usb_mouse_disconnect(struct usb_interface *intf)
 	}
 }
 
-static struct usb_device_id usb_mouse_id_table [] = {
+static struct usb_device_id usb_mouse_id_table [] = {//包含该usb设备驱动所支持usb设备vendor product等信息
 	{ USB_INTERFACE_INFO(USB_INTERFACE_CLASS_HID, USB_INTERFACE_SUBCLASS_BOOT,
 		USB_INTERFACE_PROTOCOL_MOUSE) },
 	{ }	/* Terminating entry */
 };
 
 MODULE_DEVICE_TABLE (usb, usb_mouse_id_table);
-
+//执行两个驱动probe函数:usb host控制器驱动的probe(driver/usb/host/ehci-s5p.c)、具体的usb鼠标键盘驱动的probe(如本文件usbmouse.c中的probe)
 static struct usb_driver usb_mouse_driver = {
 	.name		= "usbmouse",
 	.probe		= usb_mouse_probe,
 	.disconnect	= usb_mouse_disconnect,
-	.id_table	= usb_mouse_id_table,
+	.id_table	= usb_mouse_id_table,//将Usb otg设备插入单板:先是单板usb host驱动的probe函数被执行并获取
+//platform_device.dev.platform_data数据--->usb子系统核心usb.c遍历usb鼠标usb键盘驱动的id_table(usb_device_id结构体)字段
+//-------->platform_device.dev.platform_data与id_table(struct usb_device_id)配对后调用usb鼠标键盘驱动的probe函数.
 };
 
 module_usb_driver(usb_mouse_driver);

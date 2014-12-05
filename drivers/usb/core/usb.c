@@ -996,7 +996,7 @@ static void usb_debugfs_cleanup(void)
 /*
  * Init
  */
-static int __init usb_init(void)
+static int __init usb_init(void)//usb_init
 {
 	int retval;
 	if (nousb) {
@@ -1024,7 +1024,7 @@ static int __init usb_init(void)
 	retval = usb_devio_init();
 	if (retval)
 		goto usb_devio_init_failed;
-	retval = usb_hub_init();
+	retval = usb_hub_init();//usb_hub_init
 	if (retval)
 		goto hub_init_failed;
 	retval = usb_register_device_driver(&usb_generic_driver, THIS_MODULE);
@@ -1069,6 +1069,6 @@ static void __exit usb_exit(void)
 	usb_debugfs_cleanup();
 }
 
-subsys_initcall(usb_init);
+subsys_initcall(usb_init);//usb 子系统核心层
 module_exit(usb_exit);
 MODULE_LICENSE("GPL");
