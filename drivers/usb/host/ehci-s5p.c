@@ -71,7 +71,7 @@ static void s5p_setup_vbus_gpio(struct platform_device *pdev)
 		dev_err(dev, "can't request ehci vbus gpio %d", gpio);
 }
 
-static int s5p_ehci_probe(struct platform_device *pdev)
+static int s5p_ehci_probe(struct platform_device *pdev)//usb host控制器接口驱动(ehci规范，ohci规范的驱动见ohci-s5p.c)
 {
 	struct s5p_ehci_platdata *pdata = pdev->dev.platform_data;
 	struct s5p_ehci_hcd *s5p_ehci;
@@ -128,7 +128,7 @@ static int s5p_ehci_probe(struct platform_device *pdev)
 	if (err)
 		goto fail_clk;
 
-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);//从platform_device中获取usb host控制器的寄存器物理地址.
 	if (!res) {
 		dev_err(&pdev->dev, "Failed to get I/O memory\n");
 		err = -ENXIO;
@@ -283,11 +283,12 @@ MODULE_DEVICE_TABLE(of, exynos_ehci_match);
 #endif
 
 static struct platform_driver s5p_ehci_driver = {
-	.probe		= s5p_ehci_probe,
+	.probe		= s5p_ehci_probe,//此处只是usb host控制器的驱动,具体的usb鼠标usb键盘需要另外写设备驱动
+//(usb子系统核心层/driver/usb/core向下为各底层硬件驱动提供usb_driver接口)
 	.remove		= s5p_ehci_remove,
 	.shutdown	= s5p_ehci_shutdown,
 	.driver = {
-		.name	= "s5p-ehci",
+		.name	= "s5p-ehci",//此.name字段=s5p-ehci与/arch/arm/platxx下平台设备的.name字段匹配
 		.owner	= THIS_MODULE,
 		.pm	= &s5p_ehci_pm_ops,
 		.of_match_table = of_match_ptr(exynos_ehci_match),

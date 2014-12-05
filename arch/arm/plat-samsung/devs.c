@@ -1382,10 +1382,10 @@ static struct resource s5p_ehci_resource[] = {
 };
 
 struct platform_device s5p_device_ehci = {
-	.name		= "s5p-ehci",
+	.name		= "s5p-ehci",//.name字段与usb host控制器驱动/driver/usb/host/ehci-s5p.c的.name匹配后执行驱动probe函数.
 	.id		= -1,
 	.num_resources	= ARRAY_SIZE(s5p_ehci_resource),
-	.resource	= s5p_ehci_resource,
+	.resource	= s5p_ehci_resource,//usb host控制器寄存器物理地址.
 	.dev		= {
 		.dma_mask		= &samsung_device_dma_mask,
 		.coherent_dma_mask	= DMA_BIT_MASK(32),
