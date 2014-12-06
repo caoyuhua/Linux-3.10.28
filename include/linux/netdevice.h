@@ -1037,7 +1037,10 @@ struct net_device_ops {
  *	moves out.
  */
 
-struct net_device {
+struct net_device {//网络设备接口层：向上为网络协议接口层提供各种协议数据存放指针(各协议调用协议接口层的netif_rx可直接获取对应协议数据区指针).
+
+网络设备接口层:向下为dm9000等底层设备驱动程序提供接口(dm9000.c驱动中注册一个net_device设备).
+//用dm9000网卡自身的open/stop/xx_start_xmit函数填充net_device.net_device_ops结构体中对应成员函数.
 
 	/*
 	 * This is the first field of the "visible" part of this structure
@@ -1106,7 +1109,7 @@ struct net_device {
 	struct iw_public_data *	wireless_data;
 #endif
 	/* Management operations */
-	const struct net_device_ops *netdev_ops;
+	const struct net_device_ops *netdev_ops;//dm9000.c等网卡驱动程序中的open/stop/xx_start_xmit函数会赋值给该结构体对应成员函数.
 	const struct ethtool_ops *ethtool_ops;
 
 	/* Hardware header description */
@@ -1157,7 +1160,7 @@ struct net_device {
 	unsigned int		allmulti;
 
 
-	/* Protocol specific pointers */
+	/* Protocol specific pointers *///net_device:向上为网络协议接口层收发函数netif_rx/dev_queue_xmit提供各种协议数据存放指针？？
 
 #if IS_ENABLED(CONFIG_VLAN_8021Q)
 	struct vlan_info __rcu	*vlan_info;	/* VLAN info */

@@ -1362,7 +1362,7 @@ static const struct net_device_ops dm9000_netdev_ops = {
  * Search DM9000 board, allocate space and register it
  */
 static int
-dm9000_probe(struct platform_device *pdev)
+dm9000_probe(struct platform_device *pdev)//设备驱动层
 {
 	struct dm9000_plat_data *pdata = pdev->dev.platform_data;
 	struct board_info *db;	/* Point a board information structure */
@@ -1556,7 +1556,7 @@ dm9000_probe(struct platform_device *pdev)
 	/* driver system function */
 	ether_setup(ndev);
 
-	ndev->netdev_ops	= &dm9000_netdev_ops;
+	ndev->netdev_ops	= &dm9000_netdev_ops;//将dm9000自身的open/stop和发送函数赋值给struct net_device.netdev_ops中对应成员函数.
 	ndev->watchdog_timeo	= msecs_to_jiffies(watchdog);
 	ndev->ethtool_ops	= &dm9000_ethtool_ops;
 

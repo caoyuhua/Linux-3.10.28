@@ -1703,8 +1703,8 @@ static inline bool skb_loop_sk(struct packet_type *ptype, struct sk_buff *skb)
  *	Support routine. Sends outgoing frames to any network
  *	taps currently in use.
  */
-
-static void dev_queue_xmit_nit(struct sk_buff *skb, struct net_device *dev)
+//套接字缓冲区struct sk_buff
+static void dev_queue_xmit_nit(struct sk_buff *skb, struct net_device *dev)//网络协议接口层：上层协议可调用dev_queue_xmit发送数据
 {
 	struct packet_type *ptype;
 	struct sk_buff *skb2 = NULL;
@@ -3159,7 +3159,7 @@ enqueue:
  *
  */
 
-int netif_rx(struct sk_buff *skb)
+int netif_rx(struct sk_buff *skb)//网络协议接口层:netif_rx-->上层协议可调用该接口接收数据
 {
 	int ret;
 
