@@ -1000,17 +1000,17 @@ dm9000_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	spin_lock_irqsave(&db->lock, flags);
 
 	/* Move data to DM9000 TX RAM */
-	writeb(DM9000_MWCMD, db->io_addr);
+	writeb(DM9000_MWCMD, db->io_addr);//将内存的sk_buff数据读取到dm9000的发送ram区.
 
 	(db->outblk)(db->io_data, skb->data, skb->len);
 	dev->stats.tx_bytes += skb->len;
 
 	db->tx_pkt_cnt++;
 	/* TX control: First packet immediately send, second packet queue */
-	if (db->tx_pkt_cnt == 1) {
+	if (db->tx_pkt_cnt == 1) {//sk_buff的第一段数据直接发出
 		dm9000_send_packet(dev, skb->ip_summed, skb->len);
 	} else {
-		/* Second packet */
+		/* Second packet *///sk_buff中的后续数据加入队列
 		db->queue_pkt_len = skb->len;
 		db->queue_ip_summed = skb->ip_summed;
 		netif_stop_queue(dev);
@@ -1035,14 +1035,14 @@ static void dm9000_tx_done(struct net_device *dev, board_info_t *db)
 
 	if (tx_status & (NSR_TX2END | NSR_TX1END)) {
 		/* One packet sent complete */
-		db->tx_pkt_cnt--;
-		dev->stats.tx_packets++;
+		db->tx_pkt_cnt--;//sk_buff的一段数据发送完，待发送数据包个数-1
+		dev->stats.tx_packets++;//sk_buff的一段数据发送完，已发送数据包个数+1
 
 		if (netif_msg_tx_done(db))
 			dev_dbg(db->dev, "tx done, NSR %02x\n", tx_status);
 
 		/* Queue packet check & send */
-		if (db->tx_pkt_cnt > 0)
+		if (db->tx_pkt_cnt > 0)//发送完一个sk_buff后若还有数据包需要发送，则调netif_wake_queue通知内核将sk_buff发送队列的下一个sk_buff发送掉.
 			dm9000_send_packet(dev, db->queue_ip_summed,
 					   db->queue_pkt_len);
 		netif_wake_queue(dev);
@@ -1195,7 +1195,7 @@ static irqreturn_t dm9000_interrupt(int irq, void *dev_id)
 		dm9000_rx(dev);
 
 	/* Trnasmit Interrupt check */
-	if (int_status & ISR_PTS)//检查中断状态寄存器是否数据发送完毕产生的中断:
+	if (int_status & ISR_PTS)//检查中断状态寄存器是否数据发送完毕产生的中断:数据发送完毕后调用dm9000_tx_done
 		dm9000_tx_done(dev, db);
 
 	if (db->type != TYPE_DM9000E) {

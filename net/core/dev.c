@@ -2106,14 +2106,14 @@ static inline void __netif_reschedule(struct Qdisc *q)
 	q->next_sched = NULL;
 	*sd->output_queue_tailp = q;
 	sd->output_queue_tailp = &q->next_sched;
-	raise_softirq_irqoff(NET_TX_SOFTIRQ);
+	raise_softirq_irqoff(NET_TX_SOFTIRQ);//触发NET_TX_SOFTIRQ软中断：对应的软中断处理程序net_tx_action()
 	local_irq_restore(flags);
 }
 
 void __netif_schedule(struct Qdisc *q)
 {
 	if (!test_and_set_bit(__QDISC_STATE_SCHED, &q->state))
-		__netif_reschedule(q);
+		__netif_reschedule(q);//触发NET_TX_SOFTIRQ软中断相关.
 }
 EXPORT_SYMBOL(__netif_schedule);
 
@@ -2513,7 +2513,7 @@ static inline int skb_needs_linearize(struct sk_buff *skb,
 int dev_hard_start_xmit(struct sk_buff *skb, struct net_device *dev,
 			struct netdev_queue *txq)
 {
-	const struct net_device_ops *ops = dev->netdev_ops;
+	const struct net_device_ops *ops = dev->netdev_ops;//struct net_device.netdev_ops
 	int rc = NETDEV_TX_OK;
 	unsigned int skb_len;
 
@@ -2577,7 +2577,7 @@ int dev_hard_start_xmit(struct sk_buff *skb, struct net_device *dev,
 			dev_queue_xmit_nit(skb, dev);
 
 		skb_len = skb->len;
-		rc = ops->ndo_start_xmit(skb, dev);
+		rc = ops->ndo_start_xmit(skb, dev);//net_device.net_device_ops.ndo_start_xmit
 		trace_net_dev_xmit(skb, rc, dev, skb_len);
 		if (rc == NETDEV_TX_OK)
 			txq_trans_update(txq);
@@ -2595,7 +2595,7 @@ gso:
 			dev_queue_xmit_nit(nskb, dev);
 
 		skb_len = nskb->len;
-		rc = ops->ndo_start_xmit(nskb, dev);
+		rc = ops->ndo_start_xmit(nskb, dev);//调用dm9000.c中的发送函数
 		trace_net_dev_xmit(nskb, rc, dev, skb_len);
 		if (unlikely(rc != NETDEV_TX_OK)) {
 			if (rc & ~NETDEV_TX_MASK)
@@ -2651,7 +2651,7 @@ static void qdisc_pkt_len_init(struct sk_buff *skb)
 	}
 }
 
-static inline int __dev_xmit_skb(struct sk_buff *skb, struct Qdisc *q,
+static inline int __dev_xmit_skb(struct sk_buff *skb, struct Qdisc *q,//called by dev_queue_xmit
 				 struct net_device *dev,
 				 struct netdev_queue *txq)
 {
@@ -2692,7 +2692,7 @@ static inline int __dev_xmit_skb(struct sk_buff *skb, struct Qdisc *q,
 				spin_unlock(&q->busylock);
 				contended = false;
 			}
-			__qdisc_run(q);
+			__qdisc_run(q);//__qdisc_run:启动sk_buff组成的qdisc发送队列
 		} else
 			qdisc_run_end(q);
 
@@ -2775,7 +2775,7 @@ EXPORT_SYMBOL(dev_loopback_xmit);
  *      the BH enable code must have IRQs enabled so that it will not deadlock.
  *          --BLG
  */
-int dev_queue_xmit(struct sk_buff *skb)
+int dev_queue_xmit(struct sk_buff *skb)//dev_queue_xmit
 {
 	struct net_device *dev = skb->dev;
 	struct netdev_queue *txq;
@@ -2798,7 +2798,7 @@ int dev_queue_xmit(struct sk_buff *skb)
 	skb->tc_verd = SET_TC_AT(skb->tc_verd, AT_EGRESS);
 #endif
 	trace_net_dev_queue(skb);
-	if (q->enqueue) {
+	if (q->enqueue) {//没有直接将sk_buff发出去:将sk_buff放入sk_buff组成的qdisc发送队列.
 		rc = __dev_xmit_skb(skb, q, dev, txq);
 		goto out;
 	}
@@ -2826,8 +2826,8 @@ int dev_queue_xmit(struct sk_buff *skb)
 			HARD_TX_LOCK(dev, txq, cpu);
 
 			if (!netif_xmit_stopped(txq)) {
-				__this_cpu_inc(xmit_recursion);
-				rc = dev_hard_start_xmit(skb, dev, txq);
+				__this_cpu_inc(xmit_recursion);//只有qdisc队列为空时才会执行到此处直接将sk_buff发送出去:否则会将sk_buff加入qdisc发送队列.
+				rc = dev_hard_start_xmit(skb, dev, txq);//dev_hard_start_xmit-->调用net_device.net_device_ops.dm9000_start_xmit
 				__this_cpu_dec(xmit_recursion);
 				if (dev_xmit_complete(rc)) {
 					HARD_TX_UNLOCK(dev, txq);
@@ -3211,7 +3211,7 @@ int netif_rx_ni(struct sk_buff *skb)
 }
 EXPORT_SYMBOL(netif_rx_ni);
 
-static void net_tx_action(struct softirq_action *h)
+static void net_tx_action(struct softirq_action *h)//NET_TX_SOFTIRQ软中断处理程序
 {
 	struct softnet_data *sd = &__get_cpu_var(softnet_data);
 
@@ -3253,12 +3253,12 @@ static void net_tx_action(struct softirq_action *h)
 				smp_mb__before_clear_bit();
 				clear_bit(__QDISC_STATE_SCHED,
 					  &q->state);
-				qdisc_run(q);
+				qdisc_run(q);//qdisc_run-->qdisc_restart-->sch_direct_xmit-->dev_hard_start_xmit-->struct net_device.net_device_ops.dm9000_start_xmit
 				spin_unlock(root_lock);
 			} else {
 				if (!test_bit(__QDISC_STATE_DEACTIVATED,
 					      &q->state)) {
-					__netif_reschedule(q);
+					__netif_reschedule(q);//再次执行__netif_reschedule，产生NET_TX_SOFTIRQ
 				} else {
 					smp_mb__before_clear_bit();
 					clear_bit(__QDISC_STATE_SCHED,

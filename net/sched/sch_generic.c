@@ -186,7 +186,7 @@ static inline int qdisc_restart(struct Qdisc *q)
 	return sch_direct_xmit(skb, q, dev, txq, root_lock);
 }
 
-void __qdisc_run(struct Qdisc *q)
+void __qdisc_run(struct Qdisc *q)//called by dev_queue_xmit-->_dev_xmit_skb-->_qdisc_run
 {
 	int quota = weight_p;
 
@@ -197,7 +197,7 @@ void __qdisc_run(struct Qdisc *q)
 		 * 2. another process needs the CPU;
 		 */
 		if (--quota <= 0 || need_resched()) {
-			__netif_schedule(q);
+			__netif_schedule(q);//触发NET_TX_SOFTIRQ软中断相关
 			break;
 		}
 	}
