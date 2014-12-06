@@ -545,13 +545,13 @@ __SC_COMP(__NR_shmat, sys_shmat, compat_sys_shmat)
 #define __NR_shmdt 197
 __SYSCALL(__NR_shmdt, sys_shmdt)
 
-/* net/socket.c */
+/* net/socket.c *///sys_socket系统调用的具体实现在/net/socket.c中
 #define __NR_socket 198
-__SYSCALL(__NR_socket, sys_socket)
+__SYSCALL(__NR_socket, sys_socket)//sys_socket的系统调用号为198.
 #define __NR_socketpair 199
 __SYSCALL(__NR_socketpair, sys_socketpair)
 #define __NR_bind 200
-__SYSCALL(__NR_bind, sys_bind)
+__SYSCALL(__NR_bind, sys_bind)//定义sys_bind,sys_connect,sys_listen等系统调用:其具体实现也在/net/socket.C.
 #define __NR_listen 201
 __SYSCALL(__NR_listen, sys_listen)
 #define __NR_accept 202
@@ -706,7 +706,7 @@ __SYSCALL(__NR_finit_module, sys_finit_module)
  */
 #ifdef __ARCH_WANT_SYSCALL_NO_AT
 #define __NR_open 1024
-__SYSCALL(__NR_open, sys_open)
+__SYSCALL(__NR_open, sys_open)//系统调用sys_open的定义:应用程序编程接口open()本质是调用sys_open,sys_open具体实现在fs/open.c中.
 #define __NR_link 1025
 __SYSCALL(__NR_link, sys_link)
 #define __NR_unlink 1026

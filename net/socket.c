@@ -1234,7 +1234,7 @@ call_kill:
 EXPORT_SYMBOL(sock_wake_async);
 
 int __sock_create(struct net *net, int family, int type, int protocol,
-			 struct socket **res, int kern)
+			 struct socket **res, int kern)//called by sock_create
 {
 	int err;
 	struct socket *sock;
@@ -1293,7 +1293,7 @@ int __sock_create(struct net *net, int family, int type, int protocol,
 #endif
 
 	rcu_read_lock();
-	pf = rcu_dereference(net_families[family]);
+	pf = rcu_dereference(net_families[family]);//获取应用程序socket(family,type,protocol)入参对应的struct net_proto_family.
 	err = -EAFNOSUPPORT;
 	if (!pf)
 		goto out_release;
@@ -1308,7 +1308,7 @@ int __sock_create(struct net *net, int family, int type, int protocol,
 	/* Now protected by module ref count */
 	rcu_read_unlock();
 
-	err = pf->create(net, sock, protocol, kern);
+	err = pf->create(net, sock, protocol, kern);//调用struct net_proto_family.create成员函数完成创建.
 	if (err < 0)
 		goto out_module_put;
 
@@ -1358,7 +1358,7 @@ int sock_create_kern(int family, int type, int protocol, struct socket **res)
 }
 EXPORT_SYMBOL(sock_create_kern);
 
-SYSCALL_DEFINE3(socket, int, family, int, type, int, protocol)
+SYSCALL_DEFINE3(socket, int, family, int, type, int, protocol)//sys_socket系统调用的具体实现
 {
 	int retval;
 	struct socket *sock;
@@ -1378,7 +1378,8 @@ SYSCALL_DEFINE3(socket, int, family, int, type, int, protocol)
 	if (SOCK_NONBLOCK != O_NONBLOCK && (flags & SOCK_NONBLOCK))
 		flags = (flags & ~SOCK_NONBLOCK) | O_NONBLOCK;
 
-	retval = sock_create(family, type, protocol, &sock);
+	retval = sock_create(family, type, protocol, &sock);//sock_create-->rcu_dereference得到入参对应的struct net_proto_family
+	//--->调用net_proto_family.create成员函数创建对应协议的socket.
 	if (retval < 0)
 		goto out;
 

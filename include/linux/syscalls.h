@@ -589,7 +589,7 @@ asmlinkage long sys_recvmsg(int fd, struct msghdr __user *msg, unsigned flags);
 asmlinkage long sys_recvmmsg(int fd, struct mmsghdr __user *msg,
 			     unsigned int vlen, unsigned flags,
 			     struct timespec __user *timeout);
-asmlinkage long sys_socket(int, int, int);
+asmlinkage long sys_socket(int, int, int);//定义系统调用sys_socket:应用程序创建套接字socket()本质是调用到该sys_socket系统调用.
 asmlinkage long sys_socketpair(int, int, int, int __user *);
 asmlinkage long sys_socketcall(int call, unsigned long __user *args);
 asmlinkage long sys_listen(int, int);

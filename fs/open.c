@@ -953,7 +953,7 @@ long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 	return fd;
 }
 
-SYSCALL_DEFINE3(open, const char __user *, filename, int, flags, umode_t, mode)
+SYSCALL_DEFINE3(open, const char __user *, filename, int, flags, umode_t, mode)//sys_open系统调用的具体定义
 {
 	if (force_o_largefile())
 		flags |= O_LARGEFILE;
@@ -1014,7 +1014,7 @@ EXPORT_SYMBOL(filp_close);
  * releasing the fd. This ensures that one clone task can't release
  * an fd while another clone is opening it.
  */
-SYSCALL_DEFINE1(close, unsigned int, fd)
+SYSCALL_DEFINE1(close, unsigned int, fd)//sys_close系统调用的具体定义
 {
 	int retval = __close_fd(current->files, fd);
 
