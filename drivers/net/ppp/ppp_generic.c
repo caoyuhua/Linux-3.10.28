@@ -566,7 +566,7 @@ static int get_filter(void __user *arg, struct sock_filter **p)
 }
 #endif /* CONFIG_PPP_FILTER */
 
-static long ppp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+static long ppp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)///dev/ppp字符设备:应用程序ioctl /dev/ppp时调用本ioctl函数.
 {
 	struct ppp_file *pf = file->private_data;
 	struct ppp *ppp;
@@ -580,7 +580,7 @@ static long ppp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 
 	if (!pf)
 		return ppp_unattached_ioctl(current->nsproxy->net_ns,
-					pf, file, cmd, arg);
+					pf, file, cmd, arg);//ppp_unattached_ioctl
 
 	if (cmd == PPPIOCDETACH) {
 		/*
@@ -800,7 +800,7 @@ static long ppp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	return err;
 }
 
-static int ppp_unattached_ioctl(struct net *net, struct ppp_file *pf,
+static int ppp_unattached_ioctl(struct net *net, struct ppp_file *pf,//called by ppp_ioctl
 			struct file *file, unsigned int cmd, unsigned long arg)
 {
 	int unit, err = -EFAULT;
@@ -815,7 +815,7 @@ static int ppp_unattached_ioctl(struct net *net, struct ppp_file *pf,
 		/* Create a new ppp unit */
 		if (get_user(unit, p))
 			break;
-		ppp = ppp_create_interface(net, unit, &err);
+		ppp = ppp_create_interface(net, unit, &err);//ppp_create_interface
 		if (!ppp)
 			break;
 		file->private_data = &ppp->file;
@@ -865,7 +865,7 @@ static int ppp_unattached_ioctl(struct net *net, struct ppp_file *pf,
 }
 
 static const struct file_operations ppp_device_fops = {
-	.owner		= THIS_MODULE,
+	.owner		= THIS_MODULE,///dev/ppp字符设备的读写函数
 	.read		= ppp_read,
 	.write		= ppp_write,
 	.poll		= ppp_poll,
@@ -912,7 +912,7 @@ static int __init ppp_init(void)
 {
 	int err;
 
-	pr_info("PPP generic driver version " PPP_VERSION "\n");
+	pr_info("PPP generic driver version " PPP_VERSION "\n");//ppp驱动
 
 	err = register_pernet_device(&ppp_net_ops);
 	if (err) {
@@ -920,13 +920,13 @@ static int __init ppp_init(void)
 		goto out;
 	}
 
-	err = register_chrdev(PPP_MAJOR, "ppp", &ppp_device_fops);
+	err = register_chrdev(PPP_MAJOR, "ppp", &ppp_device_fops);//注册ppp字符设备，在/dev目录下产生/dev/ppp字符设备.
 	if (err) {
 		pr_err("failed to register PPP device (%d)\n", err);
 		goto out_net;
 	}
 
-	ppp_class = class_create(THIS_MODULE, "ppp");
+	ppp_class = class_create(THIS_MODULE, "ppp");//sysfs相关
 	if (IS_ERR(ppp_class)) {
 		err = PTR_ERR(ppp_class);
 		goto out_chrdev;
@@ -1066,15 +1066,15 @@ static int ppp_dev_init(struct net_device *dev)
 }
 
 static const struct net_device_ops ppp_netdev_ops = {
-	.ndo_init	 = ppp_dev_init,
+	.ndo_init	 = ppp_dev_init,//类似dm9000.c中的dm9000_start_xmit发送函数，ppp_netdev_ops是struct net_device的成员结构体net_device_ops.
 	.ndo_start_xmit  = ppp_start_xmit,
 	.ndo_do_ioctl    = ppp_net_ioctl,
 	.ndo_get_stats64 = ppp_get_stats64,
 };
 
-static void ppp_setup(struct net_device *dev)
+static void ppp_setup(struct net_device *dev)//called by ppp_create_interface
 {
-	dev->netdev_ops = &ppp_netdev_ops;
+	dev->netdev_ops = &ppp_netdev_ops;//struct net_device.net_device_ops
 	dev->hard_header_len = PPP_HDRLEN;
 	dev->mtu = PPP_MRU;
 	dev->addr_len = 0;
@@ -2652,7 +2652,7 @@ ppp_create_interface(struct net *net, int unit, int *retp)
 	int ret = -ENOMEM;
 	int i;
 
-	dev = alloc_netdev(sizeof(struct ppp), "", ppp_setup);
+	dev = alloc_netdev(sizeof(struct ppp), "", ppp_setup);//分配一struct net_device,并调用ppp_setup填充该net_device网络设备.
 	if (!dev)
 		goto out1;
 
