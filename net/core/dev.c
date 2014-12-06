@@ -2875,7 +2875,7 @@ static inline void ____napi_schedule(struct softnet_data *sd,
 				     struct napi_struct *napi)
 {
 	list_add_tail(&napi->poll_list, &sd->poll_list);
-	__raise_softirq_irqoff(NET_RX_SOFTIRQ);
+	__raise_softirq_irqoff(NET_RX_SOFTIRQ);//触发NET_RX_SOFTIRQ软中断(NET_RX_SOFTIRQ软中断处理程序为net_rx_action)
 }
 
 #ifdef CONFIG_RPS
@@ -3117,7 +3117,7 @@ static int enqueue_to_backlog(struct sk_buff *skb, int cpu,
 	if (skb_queue_len(&sd->input_pkt_queue) <= netdev_max_backlog) {
 		if (skb_queue_len(&sd->input_pkt_queue)) {
 enqueue:
-			__skb_queue_tail(&sd->input_pkt_queue, skb);
+			__skb_queue_tail(&sd->input_pkt_queue, skb);//将该sk_buff加入某cpu的发送队列(多核cpu,每个cpu有一个由sk_buff组成的发送队列)
 			input_queue_tail_incr_save(sd, qtail);
 			rps_unlock(sd);
 			local_irq_restore(flags);
@@ -3129,7 +3129,7 @@ enqueue:
 		 */
 		if (!__test_and_set_bit(NAPI_STATE_SCHED, &sd->backlog.state)) {
 			if (!rps_ipi_queued(sd))
-				____napi_schedule(sd, &sd->backlog);
+				____napi_schedule(sd, &sd->backlog);//____napi_schedule:触发软中断相关
 		}
 		goto enqueue;
 	}
@@ -3159,7 +3159,7 @@ enqueue:
  *
  */
 
-int netif_rx(struct sk_buff *skb)//网络协议接口层:netif_rx-->上层协议可调用该接口接收数据
+int netif_rx(struct sk_buff *skb)//网络协议接口层:netif_rx-->called by dm9000_interrupt()
 {
 	int ret;
 
@@ -3190,7 +3190,7 @@ int netif_rx(struct sk_buff *skb)//网络协议接口层:netif_rx-->上层协议
 #endif
 	{
 		unsigned int qtail;
-		ret = enqueue_to_backlog(skb, get_cpu(), &qtail);
+		ret = enqueue_to_backlog(skb, get_cpu(), &qtail);//enqueue_to_backlog(入参sk_buff)-->_napi_schedule-->_raise_softirq_irqoff
 		put_cpu();
 	}
 	return ret;
@@ -3465,7 +3465,7 @@ another_round:
 	list_for_each_entry_rcu(ptype, &ptype_all, list) {
 		if (!ptype->dev || ptype->dev == skb->dev) {
 			if (pt_prev)
-				ret = deliver_skb(skb, pt_prev, orig_dev);
+				ret = deliver_skb(skb, pt_prev, orig_dev);//deliver_skb:根据数据包类型分别调用arp_rcv或ip_rcv
 			pt_prev = ptype;
 		}
 	}
@@ -3579,7 +3579,7 @@ static int __netif_receive_skb(struct sk_buff *skb)
 		ret = __netif_receive_skb_core(skb, true);
 		tsk_restore_flags(current, pflags, PF_MEMALLOC);
 	} else
-		ret = __netif_receive_skb_core(skb, false);
+		ret = __netif_receive_skb_core(skb, false);//_netif_receive_skb_core
 
 	return ret;
 }
@@ -4033,7 +4033,7 @@ static int process_backlog(struct napi_struct *napi, int quota)
 
 		while ((skb = __skb_dequeue(&sd->process_queue))) {
 			local_irq_enable();
-			__netif_receive_skb(skb);
+			__netif_receive_skb(skb);//_netif_receive_skb
 			local_irq_disable();
 			input_queue_head_incr(sd);
 			if (++work >= quota) {
@@ -4153,7 +4153,9 @@ void netif_napi_del(struct napi_struct *napi)
 }
 EXPORT_SYMBOL(netif_napi_del);
 
-static void net_rx_action(struct softirq_action *h)
+static void net_rx_action(struct softirq_action *h)//NET_RX_SOFTIRQ软中断处理程序
+//中断上半部:硬中断只负责将接收到的数据dma读取到内存sk_buff并将sk_buff放到cpu的sk_buff数据队列.
+//中断下半部:软中断将sk_buff数据队列送到arp链路协议栈或ip网络协议栈.
 {
 	struct softnet_data *sd = &__get_cpu_var(softnet_data);
 	unsigned long time_limit = jiffies + 2;
@@ -4194,7 +4196,7 @@ static void net_rx_action(struct softirq_action *h)
 		 */
 		work = 0;
 		if (test_bit(NAPI_STATE_SCHED, &n->state)) {
-			work = n->poll(n, weight);
+			work = n->poll(n, weight);//n->poll=process_backlog():n->poll指针在net_dev_init默认指向process_backlog.
 			trace_napi_poll(n);
 		}
 

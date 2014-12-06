@@ -1059,7 +1059,7 @@ struct dm9000_rxhdr {
  *  Received a packet and pass to upper layer
  */
 static void
-dm9000_rx(struct net_device *dev)
+dm9000_rx(struct net_device *dev)//called by dm9000_interrupt
 {
 	board_info_t *db = netdev_priv(dev);
 	struct dm9000_rxhdr rxhdr;
@@ -1190,11 +1190,12 @@ static irqreturn_t dm9000_interrupt(int irq, void *dev_id)
 		dev_dbg(db->dev, "interrupt status %02x\n", int_status);
 
 	/* Received the coming packet */
-	if (int_status & ISR_PRS)
+	if (int_status & ISR_PRS)//检查中断状态寄存器是否收到数据产生的中断-->有则调dm9000_rx(分配sk_buff内存并通过dma直接将dm9000
+//数据读取到sk_buff内存)->netif_rx(将sk_buff传递给ip网络协议或arp链路协议层)
 		dm9000_rx(dev);
 
 	/* Trnasmit Interrupt check */
-	if (int_status & ISR_PTS)
+	if (int_status & ISR_PTS)//检查中断状态寄存器是否数据发送完毕产生的中断:
 		dm9000_tx_done(dev, db);
 
 	if (db->type != TYPE_DM9000E) {
@@ -1292,7 +1293,7 @@ dm9000_open(struct net_device *dev)
 	dm9000_init_dm9000(dev);
 
 	if (request_irq(dev->irq, dm9000_interrupt, irqflags, dev->name, dev))
-		return -EAGAIN;
+		return -EAGAIN;//申请中断号并绑定该中断处理函数为dm9000_interrupt:接收数据、发送完数据和链路状态改变时会产生该中断并调用中断处理函数.
 
 	/* Init driver variable */
 	db->dbug_cnt = 0;
