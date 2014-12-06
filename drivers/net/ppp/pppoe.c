@@ -1161,11 +1161,11 @@ static int __init pppoe_init(void)
 	if (err)
 		goto out;
 
-	err = proto_register(&pppoe_sk_proto, 0);
+	err = proto_register(&pppoe_sk_proto, 0);//注册pppoe协议
 	if (err)
 		goto out_unregister_net_ops;
 
-	err = register_pppox_proto(PX_PROTO_OE, &pppoe_proto);
+	err = register_pppox_proto(PX_PROTO_OE, &pppoe_proto);//注册pppoe协议类型
 	if (err)
 		goto out_unregister_pppoe_proto;
 

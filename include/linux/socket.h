@@ -137,11 +137,11 @@ struct ucred {
 	__u32	gid;
 };
 
-/* Supported address families. */
+/* Supported address families. *///内核协议族支持32中常见的协议
 #define AF_UNSPEC	0
 #define AF_UNIX		1	/* Unix domain sockets 		*/
 #define AF_LOCAL	1	/* POSIX name for AF_UNIX	*/
-#define AF_INET		2	/* Internet IP Protocol 	*/
+#define AF_INET		2	/* Internet IP Protocol 	*///即TCP/IP网络协议:AF_INET协议又可细分协议类型TCP和UDP...
 #define AF_AX25		3	/* Amateur Radio AX.25 		*/
 #define AF_IPX		4	/* Novell IPX 			*/
 #define AF_APPLETALK	5	/* AppleTalk DDP 		*/

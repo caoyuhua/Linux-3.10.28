@@ -127,13 +127,13 @@ out:
 
 static const struct net_proto_family pppox_proto_family = {
 	.family	= PF_PPPOX,
-	.create	= pppox_create,
+	.create	= pppox_create,//pppox协议的处理函数
 	.owner	= THIS_MODULE,
 };
 
 static int __init pppox_init(void)
 {
-	return sock_register(&pppox_proto_family);
+	return sock_register(&pppox_proto_family);//向struct net_proto_family协议族中注册pppox协议的处理函数
 }
 
 static void __exit pppox_exit(void)
