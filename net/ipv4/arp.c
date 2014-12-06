@@ -839,7 +839,7 @@ static int arp_process(struct sk_buff *skb)
 		goto out;
 	}
 
-	if (arp->ar_op == htons(ARPOP_REQUEST) &&
+	if (arp->ar_op == htons(ARPOP_REQUEST) &&//先判断是arp请求报文-->先查询路由表ip_route_input_noref
 	    ip_route_input_noref(skb, tip, sip, 0, dev) == 0) {
 
 		rt = skb_rtable(skb);
@@ -964,7 +964,7 @@ static int arp_rcv(struct sk_buff *skb, struct net_device *dev,
 
 	memset(NEIGH_CB(skb), 0, sizeof(struct neighbour_cb));
 
-	return NF_HOOK(NFPROTO_ARP, NF_ARP_IN, skb, dev, NULL, arp_process);
+	return NF_HOOK(NFPROTO_ARP, NF_ARP_IN, skb, dev, NULL, arp_process);//arp_process
 
 freeskb:
 	kfree_skb(skb);
@@ -1268,16 +1268,16 @@ void arp_ifdown(struct net_device *dev)
 
 static struct packet_type arp_packet_type __read_mostly = {
 	.type =	cpu_to_be16(ETH_P_ARP),
-	.func =	arp_rcv,
+	.func =	arp_rcv,//AF_INET协议中的ARP类型数据包的处理
 };
 
 static int arp_proc_init(void);
-
-void __init arp_init(void)
+//netif_rx-->netif_receive_skb-->list_for_each_entry_rcu:按照协议类型将sk_buff数据包交给相应协议模块处理.
+void __init arp_init(void)//arp协议模块(属二层协议)
 {
 	neigh_table_init(&arp_tbl);
 
-	dev_add_pack(&arp_packet_type);
+	dev_add_pack(&arp_packet_type);//将ARP协议模块的定义注册进ptype_base链表(ptype_base为内核全局链表)
 	arp_proc_init();
 #ifdef CONFIG_SYSCTL
 	neigh_sysctl_register(NULL, &arp_tbl.parms, "ipv4", NULL);
