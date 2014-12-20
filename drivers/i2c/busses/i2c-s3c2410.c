@@ -143,7 +143,7 @@ static struct platform_device_id s3c24xx_driver_ids[] = {
 MODULE_DEVICE_TABLE(platform, s3c24xx_driver_ids);
 
 #ifdef CONFIG_OF
-static const struct of_device_id s3c24xx_i2c_match[] = {
+static const struct of_device_id s3c24xx_i2c_match[] = {//used for .dts file
 	{ .compatible = "samsung,s3c2410-i2c", .data = (void *)0 },
 	{ .compatible = "samsung,s3c2440-i2c", .data = (void *)QUIRK_S3C2440 },
 	{ .compatible = "samsung,s3c2440-hdmiphy-i2c",
@@ -1027,7 +1027,7 @@ s3c24xx_i2c_parse_dt(struct device_node *np, struct s3c24xx_i2c *i2c)
 
 static int s3c24xx_i2c_probe(struct platform_device *pdev)
 {
-	struct s3c24xx_i2c *i2c;
+	struct s3c24xx_i2c *i2c;//struct i2c_adapter
 	struct s3c2410_platform_i2c *pdata = NULL;
 	struct resource *res;
 	int ret;
@@ -1060,7 +1060,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
 
 	strlcpy(i2c->adap.name, "s3c2410-i2c", sizeof(i2c->adap.name));
 	i2c->adap.owner   = THIS_MODULE;
-	i2c->adap.algo    = &s3c24xx_i2c_algorithm;
+	i2c->adap.algo    = &s3c24xx_i2c_algorithm;//为struct i2c_adapter的各成员函数赋值
 	i2c->adap.retries = 2;
 	i2c->adap.class   = I2C_CLASS_HWMON | I2C_CLASS_SPD;
 	i2c->tx_setup     = 50;
@@ -1231,12 +1231,12 @@ static const struct dev_pm_ops s3c24xx_i2c_dev_pm_ops = {
 static struct platform_driver s3c24xx_i2c_driver = {
 	.probe		= s3c24xx_i2c_probe,//.probe成员函数
 	.remove		= s3c24xx_i2c_remove,
-	.id_table	= s3c24xx_driver_ids,
+	.id_table	= s3c24xx_driver_ids,//used for .dts file
 	.driver		= {
 		.owner	= THIS_MODULE,
 		.name	= "s3c-i2c",
 		.pm	= S3C24XX_DEV_PM_OPS,
-		.of_match_table = of_match_ptr(s3c24xx_i2c_match),
+		.of_match_table = of_match_ptr(s3c24xx_i2c_match),//used for platform device/driver
 	},
 };
 

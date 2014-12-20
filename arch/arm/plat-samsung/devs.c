@@ -486,7 +486,7 @@ struct platform_device s3c_device_i2c0 = {
 	.id		= 0,
 	.num_resources	= ARRAY_SIZE(s3c_i2c0_resource),
 	.resource	= s3c_i2c0_resource,//包含i2c0控制寄存器物理地址，定义在arch/arm/mach-s3c24xx/include/mach/map.h中
-};
+};//此处平台设备及对应的平台驱动只是I2c的总线驱动，即i2c_adapter适配器驱动(具体的e2prom等芯片设备驱动在/drivers/misc/eeprom中)
 
 struct s3c2410_platform_i2c default_i2c_data __initdata = {
 	.flags		= 0,

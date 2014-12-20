@@ -154,7 +154,7 @@ static struct i2c_client *at24_translate_offset(struct at24_data *at24,
 }
 
 static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
-		unsigned offset, size_t count)
+		unsigned offset, size_t count)//at24_eeprom_read
 {
 	struct i2c_msg msg[2];
 	u8 msgbuf[2];
@@ -235,7 +235,7 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
 			break;
 		case I2C_SMBUS_WORD_DATA:
 			status = i2c_smbus_read_word_data(client, offset);
-			if (status >= 0) {
+			if (status >= 0) {//使用smbus读取两个字节数据,i2c_core.c中定义i2c_smbus_read_word_data
 				buf[0] = status & 0xff;
 				buf[1] = status >> 8;
 				status = count;
@@ -243,14 +243,14 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
 			break;
 		case I2C_SMBUS_BYTE_DATA:
 			status = i2c_smbus_read_byte_data(client, offset);
-			if (status >= 0) {
+			if (status >= 0) {//使用smbus读取一个字节数据，i2c_core.c中定义i2c_smbus_read_byte_data
 				buf[0] = status;
 				status = count;
 			}
 			break;
 		default:
 			status = i2c_transfer(client->adapter, msg, 2);
-			if (status == 2)
+			if (status == 2)//不适用smbus读取，使用普通的i2c协议读取?i2c_transfer()
 				status = count;
 		}
 		dev_dbg(&client->dev, "read %zu@%d --> %d (%ld)\n",
@@ -266,7 +266,7 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
 	return -ETIMEDOUT;
 }
 
-static ssize_t at24_read(struct at24_data *at24,
+static ssize_t at24_read(struct at24_data *at24,//at24_read()
 		char *buf, loff_t off, size_t count)
 {
 	ssize_t retval = 0;
@@ -283,7 +283,7 @@ static ssize_t at24_read(struct at24_data *at24,
 	while (count) {
 		ssize_t	status;
 
-		status = at24_eeprom_read(at24, buf, off, count);
+		status = at24_eeprom_read(at24, buf, off, count);//at24_eeprom_read()
 		if (status <= 0) {
 			if (retval == 0)
 				retval = status;
@@ -301,13 +301,13 @@ static ssize_t at24_read(struct at24_data *at24,
 }
 
 static ssize_t at24_bin_read(struct file *filp, struct kobject *kobj,
-		struct bin_attribute *attr,
+		struct bin_attribute *attr,//called by at24_probe()
 		char *buf, loff_t off, size_t count)
 {
 	struct at24_data *at24;
 
 	at24 = dev_get_drvdata(container_of(kobj, struct device, kobj));
-	return at24_read(at24, buf, off, count);
+	return at24_read(at24, buf, off, count);//at24_read()
 }
 
 
@@ -563,16 +563,16 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	mutex_init(&at24->lock);
 	at24->use_smbus = use_smbus;
 	at24->chip = chip;
-	at24->num_addresses = num_addresses;
+	at24->num_addresses = num_addresses;//器件的地址
 
 	/*
 	 * Export the EEPROM bytes through sysfs, since that's convenient.
 	 * By default, only root should see the data (maybe passwords etc)
 	 */
-	sysfs_bin_attr_init(&at24->bin);
+	sysfs_bin_attr_init(&at24->bin);//支持在sysfs中操作该e2prom芯片
 	at24->bin.attr.name = "eeprom";
 	at24->bin.attr.mode = chip.flags & AT24_FLAG_IRUGO ? S_IRUGO : S_IRUSR;
-	at24->bin.read = at24_bin_read;
+	at24->bin.read = at24_bin_read;//该e2prom芯片的读数据函数
 	at24->bin.size = chip.byte_len;
 
 	at24->macc.read = at24_macc_read;
@@ -586,7 +586,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
 
 			at24->macc.write = at24_macc_write;
 
-			at24->bin.write = at24_bin_write;
+			at24->bin.write = at24_bin_write;//该e2prom芯片的写数据函数
 			at24->bin.attr.mode |= S_IWUSR;
 
 			if (write_max > io_limit)
@@ -674,14 +674,15 @@ static int at24_remove(struct i2c_client *client)
 
 /*-------------------------------------------------------------------------*/
 
-static struct i2c_driver at24_driver = {
+static struct i2c_driver at24_driver = {//i2c驱动i2c_driver:echo c2400 0x52 > /sys/bus/i2c/devices/i2c1/new_device时据名称和器件地址便产生i2c_client(包含i2c_driver和i2c_adapter)?
+//据名称c2400便能找到本i2c_driver at24_driver;据i2c总线编号或I2c-1目录便能找到I2c_adapter？
 	.driver = {
 		.name = "at24",
 		.owner = THIS_MODULE,
 	},
 	.probe = at24_probe,
 	.remove = at24_remove,
-	.id_table = at24_ids,
+	.id_table = at24_ids,//与arch/arm/imx下的i2c_board_info中的24c00 0x52匹配后，该24c00芯片的驱动便会生效以让用户执行读写操作。
 };
 
 static int __init at24_init(void)

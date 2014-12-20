@@ -191,7 +191,7 @@ static struct at24_platform_data board_eeprom = {
 	.flags = AT24_FLAG_ADDR16,
 };
 
-static struct i2c_board_info pcm038_i2c_devices[] = {
+static struct i2c_board_info pcm038_i2c_devices[] = {//i2c_board_info结构体：定义e2prom芯片at24
 	{
 		I2C_BOARD_INFO("at24", 0x52), /* E0=0, E1=1, E2=0 */
 		.platform_data = &board_eeprom,
@@ -311,9 +311,9 @@ static void __init pcm038_init(void)
 	imx27_add_mxc_nand(&pcm038_nand_board_info);
 
 	/* only the i2c master 1 is used on this CPU card */
-	i2c_register_board_info(1, pcm038_i2c_devices,
-				ARRAY_SIZE(pcm038_i2c_devices));
-
+	i2c_register_board_info(1, pcm038_i2c_devices,//注册e2prom芯片信息:名称at24 器件地址0x52
+				ARRAY_SIZE(pcm038_i2c_devices));//i2c_register_board_info函数第一个参数1表示总线编号
+//也可echo at24 0x52 > /sys/bus/i2c/devices/i2c-1/at24:在i2c-1目录下已经表示总线编号为1了，at24和0x52有分别表示e2prom驱动的名称和器件地址
 	imx27_add_imx_i2c(1, &pcm038_i2c1_data);
 
 	/* PE18 for user-LED D40 */
