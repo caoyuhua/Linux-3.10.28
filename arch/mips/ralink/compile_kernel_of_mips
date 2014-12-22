@@ -1,0 +1,9 @@
+1.修改顶层makefile的ARCH = mips
+2.make menuconfig--->Machine select菜单中选择Ralink_soc中的MT7620_eval_board(选中MT7620_eval_board后内核会默认选中与该单板相关的配置项)
+3.make
+
+
+
+----------------------------------------------------------------------------------
+Arm可make s3c2410_defconfig后再make menuconfig在System Type中选中SMDK2416
+----->也可直接在System Type中选中S3c24xx后再选中SMDK2416（最终都是为选中SMDK2416或MT7620_eval_board等某个具体单板）。
