@@ -122,6 +122,8 @@ static int ralink_gpio_to_irq(struct gpio_chip *chip, unsigned pin)
 
 	return irq_create_mapping(rg->domain, pin);
 }
+#只有两个外部中断的单片机：这两个外部中断在linux中叫中断号，2个外部中断号即可编写两个外部中断处理程序-->若多个gpio口同时使用该中断号就需要在中断程序中判断具体发生中断的是哪个gpio口.
+#Arm支持多达16个外部中断：使用时需查询该gpio口对应哪个外部中断X--->gpio口下降沿发生中断便后调用X中断号对应的外部中断处理程序。
 
 static void ralink_gpio_irq_handler(unsigned int irq, struct irq_desc *desc)
 {
