@@ -174,7 +174,7 @@ static void ralink_gpio_irq_mask(struct irq_data *d)
 	spin_unlock_irqrestore(&rg->lock, flags);
 }
 
-static int ralink_gpio_irq_type(struct irq_data *d, unsigned int type)
+static int ralink_gpio_irq_type(struct irq_data *d, unsigned int type)//设置gpio口上升沿还是下降沿中断
 {
 	struct ralink_gpio_chip *rg;
 	u32 mask = BIT(d->hwirq);
@@ -261,11 +261,11 @@ static int ralink_gpio_request(struct gpio_chip *chip, unsigned offset)
 static int ralink_gpio_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
-	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);//从arch/mips/ralink/dts的dts文件中获取gpio寄存器物理地址及中断等资源.
 	struct ralink_gpio_chip *rg;
 	const __be32 *ngpio, *gpiobase;
 
-	if (!res) {
+	if (!res) {//从dts文件中获取gpio寄存器物理>地址及中断等资源失败
 		dev_err(&pdev->dev, "failed to find resource\n");
 		return -ENOMEM;
 	}
@@ -275,7 +275,7 @@ static int ralink_gpio_probe(struct platform_device *pdev)
 	if (!rg)
 		return -ENOMEM;
 
-	rg->membase = devm_request_and_ioremap(&pdev->dev, res);
+	rg->membase = devm_request_and_ioremap(&pdev->dev, res);//物理地址重映射remap
 	if (!rg->membase) {
 		dev_err(&pdev->dev, "cannot remap I/O memory region\n");
 		return -ENOMEM;
@@ -323,7 +323,7 @@ static int ralink_gpio_probe(struct platform_device *pdev)
 }
 
 static const struct of_device_id ralink_gpio_match[] = {
-	{ .compatible = "ralink,rt2880-gpio" },
+	{ .compatible = "ralink,rt2880-gpio" },//与.dts文件的tr2880-gpio字段匹配
 	{},
 };
 MODULE_DEVICE_TABLE(of, ralink_gpio_match);
@@ -331,9 +331,9 @@ MODULE_DEVICE_TABLE(of, ralink_gpio_match);
 static struct platform_driver ralink_gpio_driver = {
 	.probe = ralink_gpio_probe,
 	.driver = {
-		.name = "rt2880_gpio",
+		.name = "rt2880_gpio",//与platform_device的.name字段匹配：不过mips架构的各CPU(包括Ralink)不使用平台设备，他们用dts文件配置单板硬件信息.
 		.owner = THIS_MODULE,
-		.of_match_table = ralink_gpio_match,
+		.of_match_table = ralink_gpio_match,//与.dts文件的rt2880-gpio字段匹配后，该gpio驱动便会被probe.
 	},
 };
 
