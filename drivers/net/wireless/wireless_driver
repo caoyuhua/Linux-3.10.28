@@ -1,0 +1,5 @@
+#无线驱动：kernel/driver/net/wireless/rtlwifi目录下(若该目录下无线驱动中不提供ioctl函数，则需在kernel/net/wireless中勾选cfg80211和
+#mac80211)----->雷凌RT5350 MT7620等wifi芯片的无线驱动中已经提供ioctl函数，以支持iwpriv命令的配置。
+
+
+#有的无线驱动只能使用hostapd：因为该无线驱动提供的ioctl接口函数无法用iwpriv命令和hostapd配置(需要修改标准hostapd源码或iwpriv命令源码)

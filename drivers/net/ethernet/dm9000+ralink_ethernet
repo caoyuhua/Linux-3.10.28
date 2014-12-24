@@ -1,0 +1,1 @@
+#ethernet driver:kernel/driver/net/ethernet/ralink目录下--->常用的dm9000以太驱动在/driver/net/ethernet/davicom目录下。
