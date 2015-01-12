@@ -773,7 +773,7 @@ static void __init do_basic_setup(void)//called by kernel_init()
 	cpuset_init_smp();
 	usermodehelper_init();
 	shmem_init();
-	driver_init();
+	driver_init();//called by kernel_init-->do_basic_setup
 	init_irq_proc();
 	do_ctors();
 	usermodehelper_enable();

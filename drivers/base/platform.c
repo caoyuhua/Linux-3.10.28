@@ -277,7 +277,7 @@ EXPORT_SYMBOL_GPL(platform_device_add_data);
  * This is part 2 of platform_device_register(), though may be called
  * separately _iff_ pdev was allocated by platform_device_alloc().
  */
-int platform_device_add(struct platform_device *pdev)
+int platform_device_add(struct platform_device *pdev)//called by platform_device_register：将平台设备添加到平台总线的设备链表。
 {
 	int i, ret;
 
@@ -901,16 +901,33 @@ struct bus_type platform_bus_type = {
 };
 EXPORT_SYMBOL_GPL(platform_bus_type);
 
-int __init platform_bus_init(void)
+int __init platform_bus_init(void)//called by driver_init
 {
 	int error;
 
-	early_platform_cleanup();
+	early_platform_cleanup();//将platform总线private_data中的device链表和driver链表头指针初始化。
 
-	error = device_register(&platform_bus);
+	error = device_register(&platform_bus);//内核全局变量platform_bus定义如下：
+//struct device platform_bus = {
+//	.init_name	= "platform",
+//};
 	if (error)
 		return error;
-	error =  bus_register(&platform_bus_type);
+	error =  bus_register(&platform_bus_type);//内核全局变量platform_bus_type定义如下：
+/*
+struct bus_type platform_bus_type = {
+	.name		= "platform",
+	.dev_attrs	= platform_dev_attrs,
+	.match		= platform_match,
+	.uevent		= platform_uevent,
+	.pm		= &platform_dev_pm_ops,
+};
+----->.match和.uevent字段为该总线的操作方法；struct subsys_private成员结构体是该总线的私有数据结构其内容如下:
+--->
+struct kset *drivers_kset和devices_kset代表bus目录下的drivers和devices子目录。
+struct klist klist_devices和klist_drivers分别是该总线的设备链表和驱动链表。
+
+*/
 	if (error)
 		device_unregister(&platform_bus);
 	return error;
